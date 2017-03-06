@@ -1,7 +1,5 @@
 package MyApp;
 
-import javafx.beans.value.ObservableValue;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,6 +44,14 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 pause();
                 //JOptionPane.showMessageDialog(null,"hello");
+            }
+        });
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String textFieldValue = a0FormattedTextField.getText();
+                int channel = Integer.parseInt(textFieldValue);
+                int bitRate = Integer.parseInt(comboBox1.getSelectedItem().toString());
             }
         });
     }

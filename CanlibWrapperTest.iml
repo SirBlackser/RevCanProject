@@ -33,7 +33,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="jna-platform-4.3.0" level="project" />
     <orderEntry type="library" name="canlib" level="project" />
+    <orderEntry type="library" name="jna-4.3.0" level="project" />
   </component>
 </module>

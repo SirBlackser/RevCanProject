@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 public class CanReader implements Runnable{
     private JPanel panel1;
     private JTabbedPane ReadResults;
-    private JTabbedPane tabbedPane2;
     private JComboBox comboBox1;
     private JLabel BitRate;
     private JFormattedTextField a0FormattedTextField;
@@ -19,6 +18,7 @@ public class CanReader implements Runnable{
     private JButton applyButton2;
     private JTextArea textArea1;
     private JButton setButton;
+    private JTabbedPane tabbedPane1;
 
     DataGenerator dataGenerator;
 

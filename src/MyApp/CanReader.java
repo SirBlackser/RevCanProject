@@ -3,6 +3,9 @@ package MyApp;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * Created by dries on 6/03/2017.
@@ -15,10 +18,11 @@ public class CanReader implements Runnable{
     private JFormattedTextField a0FormattedTextField;
     private JButton applyButton;
     private JTextField textField1;
-    private JButton applyButton2;
+    private JButton PlayButton;
     private JTextArea textArea1;
     private JButton setButton;
-    private JTabbedPane tabbedPane1;
+    private JFormattedTextField formattedTextField1;
+    private JButton importButton;
 
     DataGenerator dataGenerator;
 
@@ -39,7 +43,7 @@ public class CanReader implements Runnable{
     public CanReader() {
         //redirectSystemStreams();
 
-        applyButton2.addActionListener(new ActionListener() {
+        PlayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pause();
@@ -52,6 +56,26 @@ public class CanReader implements Runnable{
                 String textFieldValue = a0FormattedTextField.getText();
                 int channel = Integer.parseInt(textFieldValue);
                 int bitRate = Integer.parseInt(comboBox1.getSelectedItem().toString());
+            }
+        });
+
+        String cwd = System.getProperty("user.dir");
+        final JFileChooser fc = new JFileChooser(cwd);
+
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnVal = fc.showOpenDialog(importButton.getParent());
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    //This is where a real application would open the file.
+                    log.append("Opening: " + file.getName());
+                    String path= file.getAbsolutePath();
+                    formattedTextField1.setText(path);
+                } else {
+                    log.append("Open command cancelled by user.");
+                }
             }
         });
     }

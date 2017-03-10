@@ -23,8 +23,11 @@ public class CanReader implements Runnable{
     private JButton setButton;
     private JFormattedTextField formattedTextField1;
     private JButton importButton;
+    private JButton simulateButton;
 
     DataGenerator dataGenerator;
+    Parser parser;
+    File file;
 
     public static void main(String[] args)
     {
@@ -43,10 +46,13 @@ public class CanReader implements Runnable{
     public CanReader() {
         //redirectSystemStreams();
 
-        PlayButton.addActionListener(new ActionListener() {
+        simulateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pause();
+                parser.parseDoc(file);
+                log.append("done Parsing\n");
+                parser.playPause();
+                parser.run();
                 //JOptionPane.showMessageDialog(null,"hello");
             }
         });
@@ -68,28 +74,25 @@ public class CanReader implements Runnable{
                 int returnVal = fc.showOpenDialog(importButton.getParent());
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
+                    file = fc.getSelectedFile();
                     //This is where a real application would open the file.
-                    log.append("Opening: " + file.getName());
+                    log.append("Opening: " + file.getName() + "\n");
                     String path= file.getAbsolutePath();
                     formattedTextField1.setText(path);
                 } else {
-                    log.append("Open command cancelled by user.");
+                    log.append("Open command cancelled by user.\n");
                 }
             }
         });
     }
 
-    public void pause(){
-       dataGenerator.playPause();
-    }
-
     @Override
     public void run() {
-        dataGenerator = new DataGenerator();
+        //dataGenerator = new DataGenerator();
+        parser = new Parser();
         DataObserver dataObserver = new DataObserver(textArea1);
-        dataGenerator.addObserver(dataObserver);
-        Thread t = new Thread(dataGenerator);
+        parser.addObserver(dataObserver);
+        Thread t = new Thread(parser);
         t.run();
     }
 }

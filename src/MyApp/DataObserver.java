@@ -12,7 +12,7 @@ import java.util.Observer;
 /**
  * Created by dries on 6/03/2017.
  */
-public class DataObserver implements Observer {
+public class DataObserver implements Observer{
     private JTextArea textArea1;
 
     public DataObserver(JTextArea textArea1){
@@ -23,11 +23,36 @@ public class DataObserver implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message)arg;
-        String idString = String.format("%4s", Integer.toHexString(m.id)).replace(' ', '0');
-        String hexData = bytesToHex(m.data);
-        System.out.printf("%s   %d      %2d %2d %2d %2d %2d %2d %2d %2d     %d\n",
-                idString, m.length, m.data[0], m.data[1], m.data[2], m.data[3], m.data[4],
-                m.data[5], m.data[6], m.data[7], m.time);
+        String idString = String.format("%s", Integer.toHexString(m.id)).replace(' ', '0');
+
+        //String hexData = bytesToHex(m.data);
+        if(CanReader.filterId != -1 && m.id == CanReader.filterId){
+            String hexData = bytesToHex(m.data);
+            if(hexData.length()<7)
+            {
+                System.out.printf("%s\t%d  %s\t\t%d\n",
+                        idString, m.length, hexData, m.time);
+            }
+            else
+            {
+                System.out.printf("%s\t%d  %s\t%d\n",
+                        idString, m.length, hexData, m.time);
+            }
+        }else if(CanReader.filterId == -1){
+            String hexData = bytesToHex(m.data);
+            if(hexData.length()<7)
+            {
+                System.out.printf("%s\t%d  %s\t\t%d\n",
+                        idString, m.length, hexData, m.time);
+            }
+            else
+            {
+                System.out.printf("%s\t%d  %s\t%d\n",
+                        idString, m.length, hexData, m.time);
+            }
+        }
+
+
     }
 
     //The following codes set where the text get redirected. In this case, jTextArea1
@@ -42,7 +67,7 @@ public class DataObserver implements Observer {
     public static String bytesToHex(byte[] in) {
         final StringBuilder builder = new StringBuilder();
         for(byte b : in) {
-            builder.append(String.format("%02x", b));
+            builder.append(Character.toString((char)b));
         }
         return builder.toString();
     }

@@ -14,6 +14,7 @@ import obj.Message;
  */
 public class Parser extends Observable implements Runnable {
 
+    Iterator iterator;
     public boolean paused=true;
     ArrayList<Message> importedMessages = new ArrayList<Message>();
 
@@ -22,7 +23,11 @@ public class Parser extends Observable implements Runnable {
 
     }
 
-    public synchronized void playPause(){
+    public void resetIt(){
+        iterator = importedMessages.iterator();
+    }
+
+    public void playPause(){
         if(paused)
             paused=false;
         else
@@ -30,15 +35,15 @@ public class Parser extends Observable implements Runnable {
     }
 
     @Override
-    public void run() {
-        Iterator iterator = importedMessages.iterator();
-        while (true && iterator.hasNext()){
+    public synchronized void run() {
+        iterator = importedMessages.iterator();
+        while (true){
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if(!paused) {
+            if(!paused  && iterator.hasNext()) {
                 setChanged();
                 notifyObservers(iterator.next());
             }
@@ -48,7 +53,7 @@ public class Parser extends Observable implements Runnable {
 
     public ArrayList<Message> parseDoc(File file)
     {
-        importedMessages.clear();
+        importedMessages = new ArrayList<>();
         try {
             FileReader input = new FileReader(file);
             BufferedReader bufRead = new BufferedReader(input);

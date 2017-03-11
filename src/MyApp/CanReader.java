@@ -26,8 +26,11 @@ public class CanReader implements Runnable{
     private JButton simulateButton;
 
     DataGenerator dataGenerator;
+    DataObserver dataObserver;
     Parser parser;
+    Thread t;
     File file;
+    static int filterId = -1;
 
     public static void main(String[] args)
     {
@@ -44,15 +47,12 @@ public class CanReader implements Runnable{
     }
 
     public CanReader() {
-        //redirectSystemStreams();
-
         simulateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parser.parseDoc(file);
-                log.append("done Parsing\n");
+                //log.append("done Parsing\n");
+                parser.resetIt();
                 parser.playPause();
-                parser.run();
                 //JOptionPane.showMessageDialog(null,"hello");
             }
         });
@@ -77,10 +77,24 @@ public class CanReader implements Runnable{
                     file = fc.getSelectedFile();
                     //This is where a real application would open the file.
                     log.append("Opening: " + file.getName() + "\n");
+                    parser.parseDoc(file);
+                    log.append("done Parsing\n");
                     String path= file.getAbsolutePath();
                     formattedTextField1.setText(path);
                 } else {
                     log.append("Open command cancelled by user.\n");
+                }
+            }
+        });
+        setButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String textFieldValue = textField1.getText();
+                if(textFieldValue.equals("")) {
+                    filterId = -1;
+                }
+                else {
+                    filterId = Integer.parseInt(textFieldValue, 16);
                 }
             }
         });
@@ -90,9 +104,9 @@ public class CanReader implements Runnable{
     public void run() {
         //dataGenerator = new DataGenerator();
         parser = new Parser();
-        DataObserver dataObserver = new DataObserver(textArea1);
+        dataObserver = new DataObserver(textArea1);
         parser.addObserver(dataObserver);
-        Thread t = new Thread(parser);
+        t = new Thread(parser);
         t.run();
     }
 }

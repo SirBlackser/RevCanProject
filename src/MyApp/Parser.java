@@ -22,10 +22,12 @@ public class Parser extends Observable implements Runnable {
 
     }
 
+    //restart the itterator
     public void resetIt(){
         iterator = importedMessages.iterator();
     }
 
+    //pauze printing the list
     public void playPause(){
         if(paused)
             paused=false;
@@ -33,9 +35,10 @@ public class Parser extends Observable implements Runnable {
             paused=true;
     }
 
+    //restart the iterator and start printing the list.
     @Override
     public synchronized void run() {
-        iterator = importedMessages.iterator();
+        resetIt();
         while (true){
             try {
                 Thread.sleep(10);
@@ -49,7 +52,9 @@ public class Parser extends Observable implements Runnable {
         }
     }
 
-
+    //parse the given file.
+    //expected example message: (1487076865.178310) can0 220#F10300000000D40F
+    //                          timestamp           can  id#message
     public ArrayList<Message> parseDoc(File file)
     {
         importedMessages = new ArrayList<>();;

@@ -13,6 +13,7 @@ public class DataSorter {
 
     }
 
+    //sort the messages from a file.
     public Map<Integer, ArrayList<byte[]>> SortParsedData(ArrayList<Message> messageList) {
         Map<Integer, ArrayList<byte[]>> sortedData = new HashMap<Integer, ArrayList<byte[]>>();
         Iterator iterator = messageList.iterator();
@@ -24,6 +25,7 @@ public class DataSorter {
         return sortedData;
     }
 
+    //sort the messages from a incoming data stream.
     public Map<Integer, ArrayList<byte[]>> addFromDataStream (Message message, Map<Integer, ArrayList<byte[]>> currentData ) {
         Map<Integer, ArrayList<byte[]>> data = currentData;
         if(data.get(message.id) == null)

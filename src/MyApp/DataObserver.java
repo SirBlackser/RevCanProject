@@ -20,13 +20,15 @@ public class DataObserver implements Observer{
         redirectSystemStreams();
     }
 
+    //print the text to the texArea
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message)arg;
         String idString = String.format("%s", Integer.toHexString(m.id)).replace(' ', '0');
+        idString = idString.toUpperCase();
 
         //String hexData = bytesToHex(m.data);
-        if(CanReader.filterId != -1 && m.id == CanReader.filterId){
+        if(!CanReader.filterIds.contains(-1) &&CanReader.filterIds.contains(m.id)){
             String hexData = bytesToHex(m.data);
             if(hexData.length()<7)
             {
@@ -38,7 +40,7 @@ public class DataObserver implements Observer{
                 System.out.printf("%s\t%d  %s\t%d\n",
                         idString, m.length, hexData, m.time);
             }
-        }else if(CanReader.filterId == -1){
+        }else if(CanReader.filterIds.contains(-1)){
             String hexData = bytesToHex(m.data);
             if(hexData.length()<7)
             {
@@ -51,8 +53,15 @@ public class DataObserver implements Observer{
                         idString, m.length, hexData, m.time);
             }
         }
+    }
 
-
+    //converts the databytes to a hexString
+    public static String bytesToHex(byte[] in) {
+        final StringBuilder builder = new StringBuilder();
+        for(byte b : in) {
+            builder.append(Character.toString((char)b));
+        }
+        return builder.toString();
     }
 
     //The following codes set where the text get redirected. In this case, jTextArea1
@@ -62,14 +71,6 @@ public class DataObserver implements Observer{
                 textArea1.append(text);
             }
         });
-    }
-
-    public static String bytesToHex(byte[] in) {
-        final StringBuilder builder = new StringBuilder();
-        for(byte b : in) {
-            builder.append(Character.toString((char)b));
-        }
-        return builder.toString();
     }
 
     //Followings are The Methods that do the Redirect, you can simply Ignore them.

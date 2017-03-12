@@ -35,7 +35,8 @@ public class CanReader implements Runnable{
     Thread t;
     File file;
     static DataSorter dataSorter;
-    static int filterId = -1;
+    //static int filterId = -1;
+    static ArrayList<Integer> filterIds;
     Map<Integer, ArrayList<byte[]>> sortedData;
 
     public static void main(String[] args)
@@ -43,6 +44,8 @@ public class CanReader implements Runnable{
         JFrame frame = new JFrame("CanApp");
         CanReader canReader = new CanReader();
         dataSorter = new DataSorter();
+        filterIds = new ArrayList<Integer>();
+        filterIds.add(-1);
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -54,6 +57,7 @@ public class CanReader implements Runnable{
     }
 
     public CanReader() {
+        //print the simulation (print the lines of a imported file).
         simulateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -63,6 +67,7 @@ public class CanReader implements Runnable{
                 //JOptionPane.showMessageDialog(null,"hello");
             }
         });
+        //set the channel properties
         applyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -75,6 +80,9 @@ public class CanReader implements Runnable{
         String cwd = System.getProperty("user.dir");
         final JFileChooser fc = new JFileChooser(cwd);
 
+        //import a saved file of logs from the obd plug.
+        //expected example message: (1487076865.178310) can0 220#F10300000000D40F
+        //                          timestamp           can  id#message
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,20 +102,31 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //set the filter for incoming messages on the message board.
         setButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String textFieldValue = textField1.getText();
                 if(textFieldValue.equals("")) {
-                    filterId = -1;
+                    //filterId = -1;
+                    filterIds.clear();
+                    filterIds.add(-1);
                 }
                 else {
-                    filterId = Integer.parseInt(textFieldValue, 16);
+                    //filterId = Integer.parseInt(textFieldValue, 16);
+                    filterIds.clear();
+                    String[] toFilter = textFieldValue.split(";");
+                    for(int i = 0; i < toFilter.length; i++)
+                    {
+                        toFilter[i] = toFilter[i].replaceAll("\\s", "");
+                        filterIds.add(Integer.parseInt(toFilter[i],16));
+                    }
                 }
             }
         });
     }
 
+    //run thread for printing the messages.
     @Override
     public void run() {
         //dataGenerator = new DataGenerator();

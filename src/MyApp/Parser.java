@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Observable;
-import java.util.Observer;
 
 import obj.Message;
 
@@ -53,7 +52,7 @@ public class Parser extends Observable implements Runnable {
 
     public ArrayList<Message> parseDoc(File file)
     {
-        importedMessages = new ArrayList<>();
+        importedMessages = new ArrayList<>();;
         try {
             FileReader input = new FileReader(file);
             BufferedReader bufRead = new BufferedReader(input);
@@ -77,6 +76,7 @@ public class Parser extends Observable implements Runnable {
                 String[] split2 = split1[2].split("\\#");
                 //              split2[0] = "153"
                 //              split2[1] = "200000FF00FF607E"
+
                 byte[] b = split2[1].getBytes();
                 BigDecimal bd = new BigDecimal(split1[0]);
                 long time = bd.longValue();
@@ -89,7 +89,6 @@ public class Parser extends Observable implements Runnable {
         } catch (IOException e) {
             System.err.println("error buffering file: "+ e.getMessage());
         }
-
         return importedMessages;
     }
 

@@ -1,9 +1,13 @@
 package MyApp;
 
+import obj.Message;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
@@ -30,12 +34,15 @@ public class CanReader implements Runnable{
     Parser parser;
     Thread t;
     File file;
+    static DataSorter dataSorter;
     static int filterId = -1;
+    Map<Integer, ArrayList<byte[]>> sortedData;
 
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("CanApp");
         CanReader canReader = new CanReader();
+        dataSorter = new DataSorter();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -77,8 +84,9 @@ public class CanReader implements Runnable{
                     file = fc.getSelectedFile();
                     //This is where a real application would open the file.
                     log.append("Opening: " + file.getName() + "\n");
-                    parser.parseDoc(file);
-                    log.append("done Parsing\n");
+                    ArrayList<Message> importedMessages = parser.parseDoc(file);
+                    sortedData = dataSorter.SortParsedData(importedMessages);
+                    //log.append("done Parsing\n");
                     String path= file.getAbsolutePath();
                     formattedTextField1.setText(path);
                 } else {

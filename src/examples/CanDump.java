@@ -56,10 +56,18 @@ public class CanDump {
     		System.out.println("***Error frame received***");
     	}
     	else{
-	    	String idString = String.format("%8s", Integer.toBinaryString(m.id)).replace(' ', '0');
-	    	System.out.printf("%s  %d  %2d %2d %2d %2d %2d %2d %2d %2d   %d\n",
-	                idString, m.length, m.data[0], m.data[1], m.data[2], m.data[3], m.data[4],
-	                m.data[5], m.data[6], m.data[7], m.time);
+	    	String idString = String.format("%8s", Integer.toUnsignedString(m.id)).replace(' ', '0');
+			String hexData = bytesToHex(m.data);
+			System.out.printf("%s\t%d  %s\t\t%d\n",
+					idString, m.length, hexData, m.time);
     	}
     }
+
+	public static String bytesToHex(byte[] in) {
+		final StringBuilder builder = new StringBuilder();
+		for(byte b : in) {
+			builder.append(Character.toString((char)b));
+		}
+		return builder.toString();
+	}
 }

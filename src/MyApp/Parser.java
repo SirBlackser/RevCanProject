@@ -14,12 +14,15 @@ import obj.Message;
 public class Parser extends Observable implements Runnable {
 
     Iterator iterator;
+    int i;
+    int currentLocation;
     public boolean paused=true;
     ArrayList<Message> importedMessages = new ArrayList<Message>();
 
     public Parser()
     {
-
+        i = 0;
+        currentLocation = i;
     }
 
     //restart the itterator
@@ -27,27 +30,40 @@ public class Parser extends Observable implements Runnable {
         iterator = importedMessages.iterator();
     }
 
+    public void resetI() { i=0; currentLocation = i;}
+
+    public synchronized void syncLists() {this.importedMessages = CanReader.importedMessages;}
+
     //pauze printing the list
     public void playPause(){
         if(paused)
             paused=false;
-        else
-            paused=true;
+        else {
+            paused = true;
+            //will stop the for loop, prints last message tho
+            i = importedMessages.size()-1;
+        }
     }
 
     //restart the iterator and start printing the list.
     @Override
     public synchronized void run() {
-        resetIt();
+        resetI();
         while (true){
             try {
-                Thread.sleep(10);
+                if(!paused) {
+                    for (i = currentLocation; i < importedMessages.size(); i++) {
+                        Thread.sleep(10);
+                        setChanged();
+                        notifyObservers(importedMessages.get(i));
+                    }
+                    syncLists();
+                    currentLocation = i;
+                } else {
+                    Thread.sleep(10);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            if(!paused  && iterator.hasNext()) {
-                setChanged();
-                notifyObservers(iterator.next());
             }
         }
     }

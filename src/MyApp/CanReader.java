@@ -35,9 +35,11 @@ public class CanReader implements Runnable{
 
     private DataGenerator dataGenerator;
     private DataObserver dataObserver;
+    private DataSorter incoming;
     private Parser parser;
-    private Thread tSimulate;
-    private Thread tLive;
+    private MessageHandler messageHandler;
+    private Thread t;
+    private Thread thandler;
     private File file;
     private static DataSorter dataSorter;
     //static int filterId = -1;
@@ -47,6 +49,7 @@ public class CanReader implements Runnable{
     private static int channel;
     private static String bitRate;
     private static boolean readBus;
+    public static ArrayList<Message> importedMessages;
 
     public static void main(String[] args)
     {
@@ -55,6 +58,7 @@ public class CanReader implements Runnable{
         channel = 0;
         bitRate = "500K";
         readBus = false;
+        importedMessages = new ArrayList<Message>();
         dataSorter = new DataSorter();
         filterIds = new ArrayList<Integer>();
         filterIds.add(-1);
@@ -63,7 +67,8 @@ public class CanReader implements Runnable{
         frame.pack();
         frame.setBounds(500,250,500,500);
         frame.setVisible(true);
-        canReader.run();
+        Thread canReaderThread = new Thread(canReader);
+        canReaderThread.start();
         //frame.setLocation(500,250);
 
     }
@@ -75,6 +80,7 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 //log.append("done Parsing\n");
                 parser.resetIt();
+                parser.resetI();
                 parser.playPause();
                 //JOptionPane.showMessageDialog(null,"hello");
             }
@@ -104,7 +110,7 @@ public class CanReader implements Runnable{
                     file = fc.getSelectedFile();
                     //This is where a real application would open the file.
                     log.append("Opening: " + file.getName() + "\n");
-                    ArrayList<Message> importedMessages = parser.parseDoc(file);
+                   importedMessages = parser.parseDoc(file);
                     sortedData = dataSorter.SortParsedData(importedMessages);
                     //log.append("done Parsing\n");
                     String path= file.getAbsolutePath();
@@ -140,17 +146,28 @@ public class CanReader implements Runnable{
         PlayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(readBus) {
+                    readBus = false;
+                    parser.playPause();
+                }
+                else {
+                    readBus = true;
+                    parser.playPause();
+                }
                 try{
                     handle = new Handle(channel);
-                    if(!readBus) {
+                    if(readBus) {
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
                         handle.busOn();
-                        log.append("channel opened");
+                        log.append("channel opened\n");
                     } else {
                         handle.busOff();
                         handle.close();
-                        log.append("channel closed");
+                        log.append("channel closed\n");
                     }
+                    messageHandler.setHandle(handle);
+                    thandler = new Thread(messageHandler);
+                    thandler.start();
 
                 } catch(CanlibException o) {
                     System.err.println("failed to open channel: " + o);
@@ -167,8 +184,10 @@ public class CanReader implements Runnable{
         parser = new Parser();
         dataObserver = new DataObserver(textArea1);
         parser.addObserver(dataObserver);
-        tSimulate = new Thread(parser);
-        tSimulate.run();
+        t = new Thread(parser);
+        t.start();
+
+        messageHandler = new MessageHandler();
     }
 
     private int getBitrate()
@@ -186,5 +205,10 @@ public class CanReader implements Runnable{
             case "10K" : busRate = Canlib.canBITRATE_10K; break;
         }
         return busRate;
+    }
+
+    public static void saveIncomingStream(Message message)
+    {
+        importedMessages.add(message);
     }
 }

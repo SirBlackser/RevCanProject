@@ -146,15 +146,15 @@
                 </constraints>
                 <properties>
                   <model>
-                    <item value="1000000"/>
-                    <item value="500000"/>
-                    <item value="250000"/>
-                    <item value="125000"/>
-                    <item value="100000"/>
-                    <item value="83333"/>
-                    <item value="62500"/>
-                    <item value="50000"/>
-                    <item value="33333"/>
+                    <item value="1M"/>
+                    <item value="500K"/>
+                    <item value="250K"/>
+                    <item value="125K"/>
+                    <item value="100K"/>
+                    <item value="83K"/>
+                    <item value="62K"/>
+                    <item value="50K"/>
+                    <item value="10K"/>
                   </model>
                 </properties>
               </component>

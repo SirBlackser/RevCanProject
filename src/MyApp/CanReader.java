@@ -1,6 +1,10 @@
 package MyApp;
 
+import core.Canlib;
+import obj.CanlibException;
+import obj.Handle;
 import obj.Message;
+import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -29,20 +33,28 @@ public class CanReader implements Runnable{
     private JButton importButton;
     private JButton simulateButton;
 
-    DataGenerator dataGenerator;
-    DataObserver dataObserver;
-    Parser parser;
-    Thread t;
-    File file;
-    static DataSorter dataSorter;
+    private DataGenerator dataGenerator;
+    private DataObserver dataObserver;
+    private Parser parser;
+    private Thread tSimulate;
+    private Thread tLive;
+    private File file;
+    private static DataSorter dataSorter;
     //static int filterId = -1;
-    static ArrayList<Integer> filterIds;
-    Map<Integer, ArrayList<byte[]>> sortedData;
+    public static ArrayList<Integer> filterIds;
+    private Map<Integer, ArrayList<byte[]>> sortedData;
+    private Handle handle;
+    private static int channel;
+    private static String bitRate;
+    private static boolean readBus;
 
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("CanApp");
         CanReader canReader = new CanReader();
+        channel = 0;
+        bitRate = "500K";
+        readBus = false;
         dataSorter = new DataSorter();
         filterIds = new ArrayList<Integer>();
         filterIds.add(-1);
@@ -72,8 +84,8 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String textFieldValue = a0FormattedTextField.getText();
-                int channel = Integer.parseInt(textFieldValue);
-                int bitRate = Integer.parseInt(comboBox1.getSelectedItem().toString());
+                channel = Integer.parseInt(textFieldValue);
+                bitRate = comboBox1.getSelectedItem().toString();
             }
         });
 
@@ -124,6 +136,28 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //open channel to car
+        PlayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    handle = new Handle(channel);
+                    if(!readBus) {
+                        handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
+                        handle.busOn();
+                        log.append("channel opened");
+                    } else {
+                        handle.busOff();
+                        handle.close();
+                        log.append("channel closed");
+                    }
+
+                } catch(CanlibException o) {
+                    System.err.println("failed to open channel: " + o);
+                }
+
+            }
+        });
     }
 
     //run thread for printing the messages.
@@ -133,7 +167,24 @@ public class CanReader implements Runnable{
         parser = new Parser();
         dataObserver = new DataObserver(textArea1);
         parser.addObserver(dataObserver);
-        t = new Thread(parser);
-        t.run();
+        tSimulate = new Thread(parser);
+        tSimulate.run();
+    }
+
+    private int getBitrate()
+    {
+        int busRate = 0;
+        switch (bitRate) {
+            case "1M" : busRate = Canlib.canBITRATE_1M; break;
+            case "500K" : busRate = Canlib.canBITRATE_500K; break;
+            case "250K" : busRate = Canlib.canBITRATE_250K; break;
+            case "125K" : busRate = Canlib.canBITRATE_125K; break;
+            case "100K" : busRate = Canlib.canBITRATE_100K; break;
+            case "83K" : busRate = Canlib.canBITRATE_83K; break;
+            case "62K" : busRate = Canlib.canBITRATE_62K; break;
+            case "50K" : busRate = Canlib.canBITRATE_50K; break;
+            case "10K" : busRate = Canlib.canBITRATE_10K; break;
+        }
+        return busRate;
     }
 }

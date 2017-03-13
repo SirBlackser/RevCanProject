@@ -33,7 +33,6 @@ public class CanReader implements Runnable{
     private JButton importButton;
     private JButton simulateButton;
 
-    private DataGenerator dataGenerator;
     private DataObserver dataObserver;
     private DataSorter incoming;
     private Parser parser;

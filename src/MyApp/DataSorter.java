@@ -27,17 +27,16 @@ public class DataSorter {
 
     //sort the messages from a incoming data stream.
     public Map<Integer, ArrayList<byte[]>> addFromDataStream (Message message, Map<Integer, ArrayList<byte[]>> currentData ) {
-        Map<Integer, ArrayList<byte[]>> data = currentData;
-        if(data.get(message.id) == null)
+        Map<Integer, ArrayList<byte[]>> sortedData = currentData;
+        ArrayList<byte[]> idMessages;
+        if(sortedData.get(message.id) == null)
         {
-            ArrayList<byte[]> idMessages = new ArrayList<byte[]>();
-            idMessages.add(message.data);
-            data.put(message.id, idMessages);
+            idMessages = new ArrayList<byte[]>();
         } else {
-            ArrayList<byte[]> idMessages = data.get(message.id);
-            idMessages.add(message.data);
-            data.put(message.id, idMessages);
+            idMessages = sortedData.get(message.id);
         }
-        return data;
+        idMessages.add(message.data);
+        sortedData.put(message.id, idMessages);
+        return sortedData;
     }
 }

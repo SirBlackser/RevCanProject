@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -32,9 +34,10 @@ public class CanReader implements Runnable{
     private JFormattedTextField formattedTextField1;
     private JButton importButton;
     private JButton simulateButton;
+    private JTextField textField2;
+    private JButton saveButton;
 
     private DataObserver dataObserver;
-    private DataSorter incoming;
     private Parser parser;
     private MessageHandler messageHandler;
     private Thread t;
@@ -43,7 +46,7 @@ public class CanReader implements Runnable{
     private static DataSorter dataSorter;
     //static int filterId = -1;
     public static ArrayList<Integer> filterIds;
-    private Map<Integer, ArrayList<byte[]>> sortedData;
+    private static Map<Integer, ArrayList<byte[]>> sortedData;
     private Handle handle;
     private static int channel;
     private static String bitRate;
@@ -78,6 +81,7 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 //log.append("done Parsing\n");
+                parser.setSimulation(true);
                 parser.resetIt();
                 parser.resetI();
                 parser.playPause();
@@ -109,7 +113,7 @@ public class CanReader implements Runnable{
                     file = fc.getSelectedFile();
                     //This is where a real application would open the file.
                     log.append("Opening: " + file.getName() + "\n");
-                   importedMessages = parser.parseDoc(file);
+                    importedMessages = parser.parseDoc(file);
                     sortedData = dataSorter.SortParsedData(importedMessages);
                     //log.append("done Parsing\n");
                     String path= file.getAbsolutePath();
@@ -145,6 +149,7 @@ public class CanReader implements Runnable{
         PlayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                parser.setSimulation(false);
                 if(readBus) {
                     readBus = false;
                     parser.playPause();
@@ -174,6 +179,62 @@ public class CanReader implements Runnable{
 
             }
         });
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setCurrentDirectory(new java.io.File("."));
+                    //fc.setDialogTitle(fc);
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    String location = "C:/Users/dries/CanlibWrapperTest/TestFiles/";
+                    //
+                    // disable the "All files" option.
+                    //
+                    chooser.setAcceptAllFileFilterUsed(false);
+                    //
+                    if (chooser.showOpenDialog(saveButton.getParent()) == JFileChooser.APPROVE_OPTION) {
+                        location = fc.getCurrentDirectory().getAbsolutePath() + "/";
+                    /*System.out.println("getCurrentDirectory(): "
+                            +  chooser.getCurrentDirectory());
+                    System.out.println("getSelectedFile() : "
+                            +  chooser.getSelectedFile());*/
+                    }
+                    else {
+                        System.out.println("No Selection ");
+                    }
+                    //String location = "C:/Users/dries/CanlibWrapperTest/TestFiles/";
+                    String fileName =  location + textField2.getText() + ".log";
+                    File file = new File(fileName);
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    FileWriter writer = new FileWriter(file);
+                    for(Message m: importedMessages) {
+                        String idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
+                        String hexData = bytesToHex(m.data);
+                        String theTime = Long.toString(m.time);
+                        String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
+                        String str = "(" + time + ") can0 " + idString.toUpperCase() + "#" + hexData + "\n";
+                        writer.write(str);
+                    }
+                } catch (IOException o) {
+                    System.out.println("Failed saving file: " + o);
+                }
+
+            }
+        });
+    }
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     //run thread for printing the messages.
@@ -209,5 +270,6 @@ public class CanReader implements Runnable{
     public static void saveIncomingStream(Message message)
     {
         importedMessages.add(message);
+        sortedData = dataSorter.addFromDataStream(message, sortedData);
     }
 }

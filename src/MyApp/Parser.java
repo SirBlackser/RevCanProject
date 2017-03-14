@@ -18,17 +18,21 @@ public class Parser extends Observable implements Runnable {
     int currentLocation;
     public boolean paused=true;
     ArrayList<Message> importedMessages = new ArrayList<Message>();
+    boolean simulation;
 
     public Parser()
     {
         i = 0;
         currentLocation = i;
+        simulation = false;
     }
 
     //restart the itterator
     public void resetIt(){
         iterator = importedMessages.iterator();
     }
+
+    public void setSimulation(boolean sim) {simulation = sim;}
 
     public void resetI() { i=0; currentLocation = i;}
 
@@ -53,7 +57,9 @@ public class Parser extends Observable implements Runnable {
             try {
                 if(!paused) {
                     for (i = currentLocation; i < importedMessages.size(); i++) {
-                        //Thread.sleep(1);
+                        if(simulation) {
+                            Thread.sleep(1);
+                        }
                         setChanged();
                         notifyObservers(importedMessages.get(i));
                     }
@@ -112,6 +118,7 @@ public class Parser extends Observable implements Runnable {
         StringBuilder s = new StringBuilder(split1[0]);
         s.deleteCharAt(0);
         s.deleteCharAt(s.length()-1);
+        s.deleteCharAt(s.length()-7);
         //split1[0] = split1[0].replace("\\(", "");
         //split1[0] = split1[0].replace("\\)", "");
         split1[0] = s.toString();

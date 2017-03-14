@@ -24,34 +24,18 @@ public class DataObserver implements Observer{
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message)arg;
-        String idString = String.format("%s", Integer.toHexString(m.id)).replace(' ', '0');
+        String idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
         idString = idString.toUpperCase();
-
+        String hexData = bytesToHex(m.data);
+        String theTime = Long.toString(m.time);
+        String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
         //String hexData = bytesToHex(m.data);
         if(!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)){
-            String hexData = bytesToHex(m.data);
-            if(m.length<6)
-            {
-                System.out.printf("%s\t%d  %s\t\t%d\n",
-                        idString, m.length, hexData, m.time);
-            }
-            else
-            {
-                System.out.printf("%s\t%d  %s\t%d\n",
-                        idString, m.length, hexData, m.time);
-            }
+            System.out.printf("%s    %s\t%d  %s\n",
+                    time, idString, m.length, hexData);
         }else if(CanReader.filterIds.contains(-1)){
-            String hexData = bytesToHex(m.data);
-            if(m.length<6)
-            {
-                System.out.printf("%s\t%d  %s\t\t%d\n",
-                        idString, m.length, hexData, m.time);
-            }
-            else
-            {
-                System.out.printf("%s\t%d  %s\t%d\n",
-                        idString, m.length, hexData, m.time);
-            }
+            System.out.printf("%s    %s\t%d  %s\n",
+                    time, idString, m.length, hexData);
         }
     }
 

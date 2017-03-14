@@ -92,6 +92,16 @@ public class Parser extends Observable implements Runnable {
         return importedMessages;
     }
 
+    public static byte[] hexStringToByteArray(String s) {
+        byte[] b = new byte[s.length() / 2];
+        for (int i = 0; i < b.length; i++) {
+            int index = i * 2;
+            int v = Integer.parseInt(s.substring(index, index + 2), 16);
+            b[i] = (byte) v;
+        }
+        return b;
+    }
+
     public Message parseLine(String myLine)
     {
         //voorbeeld bericht: "(1487086751.815959) can0 153#200000FF00FF607E"
@@ -109,13 +119,14 @@ public class Parser extends Observable implements Runnable {
 
         String[] split2 = split1[2].split("\\#");
         //              split2[0] = "153"
-        //              split2[1] = "200000FF00FF607E"
+        //              split2[1] = "20 00 00 FF 00 FF 60 7E"
 
-        byte[] b = split2[1].getBytes();
+        //byte[] b = split2[1].getBytes();
+        byte[] b = hexStringToByteArray(split2[1]);
         BigDecimal bd = new BigDecimal(split1[0]);
         long time = bd.longValue();
 
-        Message message = new Message(Integer.parseInt(split2[0],16), b, myLine.length(), 0, time);
+        Message message = new Message(Integer.parseInt(split2[0],16), b, b.length, 0, time);
         return message;
     }
 

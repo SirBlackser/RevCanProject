@@ -36,6 +36,16 @@ public class CanReader implements Runnable{
     private JButton simulateButton;
     private JTextField textField2;
     private JButton saveButton;
+    private JTextField textField3;
+    private JTextField textField4;
+    private JTextField textField5;
+    private JTextField textField6;
+    private JTextField textField7;
+    private JTextField textField8;
+    private JRadioButton roundRobinRadioButton;
+    private JRadioButton upDownRadioButton;
+    private JButton startStopButton;
+    private JTextField textField9;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -222,6 +232,19 @@ public class CanReader implements Runnable{
                     System.out.println("Failed saving file: " + o);
                 }
 
+            }
+        });
+        startStopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // textField3 -> ID
+                // textField4 -> Inital Message
+                // textField5 -> important bytes
+                // textField6 -> increment
+                // textField7 -> upper limit
+                // textField8 -> lower limit
+                // textField9 -> increment speed in ms
+                //roundRobinRadioButton & upDownRadioButton
             }
         });
     }

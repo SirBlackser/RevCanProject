@@ -28,14 +28,9 @@ public class DataObserver implements Observer{
         idString = idString.toUpperCase();
 
         //String hexData = bytesToHex(m.data);
-        if(!CanReader.filterIds.contains(-1) &&CanReader.filterIds.contains(m.id)){
+        if(!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)){
             String hexData = bytesToHex(m.data);
-            if(hexData.length()<6)
-            {
-                System.out.printf("%s\t%d  %s\t\t\t%d\n",
-                        idString, m.length, hexData, m.time);
-            }
-            else if(hexData.length()<7)
+            if(m.length<6)
             {
                 System.out.printf("%s\t%d  %s\t\t%d\n",
                         idString, m.length, hexData, m.time);
@@ -47,7 +42,7 @@ public class DataObserver implements Observer{
             }
         }else if(CanReader.filterIds.contains(-1)){
             String hexData = bytesToHex(m.data);
-            if(hexData.length()<7)
+            if(m.length<6)
             {
                 System.out.printf("%s\t%d  %s\t\t%d\n",
                         idString, m.length, hexData, m.time);

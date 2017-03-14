@@ -45,9 +45,6 @@ public class MessageHandler implements Runnable{
     public synchronized void run() {
         boolean finished = false;
 
-        System.out.println("Channel 0 opened.");
-        //System.out.println("   ID    DLC DATA                      Timestamp");
-
         while (!finished)
         {
             try{

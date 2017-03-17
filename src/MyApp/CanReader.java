@@ -42,10 +42,9 @@ public class CanReader implements Runnable{
     private JTextField textField6;
     private JTextField textField7;
     private JTextField textField8;
-    private JRadioButton roundRobinRadioButton;
-    private JRadioButton upDownRadioButton;
     private JButton startStopButton;
     private JTextField textField9;
+    private JComboBox comboBox2;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -177,14 +176,14 @@ public class CanReader implements Runnable{
                     handle = new Handle(channel);
                     if(readBus) {
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
-                        messageHandler.setFinished(false);
+                        messageHandler.setActive(false);
                         handle.busOn();
                         log.append("channel opened\n");
                         messageHandler.setHandle(handle);
                         thandler = new Thread(messageHandler);
                         thandler.start();
                     } else {
-                        messageHandler.setFinished(true);
+                        messageHandler.setActive(true);
                         handle.busOff();
                         handle.close();
                         log.append("channel closed\n");
@@ -243,14 +242,29 @@ public class CanReader implements Runnable{
         startStopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // textField3 -> ID
-                // textField4 -> Inital Message
-                // textField5 -> important bytes
-                // textField6 -> increment
-                // textField7 -> upper limit
-                // textField8 -> lower limit
-                // textField9 -> increment speed in ms
-                //roundRobinRadioButton & upDownRadioButton
+                if(messageHandler.getsend() == false) {
+                    messageHandler.setSend(true);
+                    if (textField3.isValid() && textField4.isValid() && textField5.isValid()) {
+                        // textField3 -> ID
+                        // textField4 -> Inital Message
+                        messageHandler.setMessage(Integer.parseInt(textField3.getText()), parser.hexStringToByteArray(textField4.getText()));
+                        // textField5 -> important bytes
+                        messageHandler.setImportantBytes(textField5.getText());
+                    }
+
+                    // textField6 -> increment
+                    // textField7 -> upper limit
+                    // textField8 -> lower limit
+                    // textField9 -> increment speed in ms
+                    if (!comboBox1.getSelectedItem().toString().equals("None")) {
+                        messageHandler.setIncrement(Integer.parseInt(textField6.getText(), 16),
+                                Integer.parseInt(textField7.getText(), 16),
+                                Integer.parseInt(textField8.getText(), 16),
+                                Integer.parseInt(textField9.getText()));
+                    }
+                } else {
+                    messageHandler.setSend(false);
+                }
             }
         });
     }

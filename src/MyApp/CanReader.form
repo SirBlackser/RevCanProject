@@ -361,22 +361,6 @@
                   <text value="way of looping"/>
                 </properties>
               </component>
-              <component id="6957d" class="javax.swing.JRadioButton" binding="roundRobinRadioButton" default-binding="true">
-                <constraints>
-                  <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="RoundRobin"/>
-                </properties>
-              </component>
-              <component id="8c7c4" class="javax.swing.JRadioButton" binding="upDownRadioButton" default-binding="true">
-                <constraints>
-                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="UpDown"/>
-                </properties>
-              </component>
               <component id="e1697" class="javax.swing.JButton" binding="startStopButton" default-binding="true">
                 <constraints>
                   <grid row="7" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -400,6 +384,18 @@
                   </grid>
                 </constraints>
                 <properties/>
+              </component>
+              <component id="c4ee0" class="javax.swing.JComboBox" binding="comboBox2" default-binding="true">
+                <constraints>
+                  <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="None"/>
+                    <item value="RoundRobin"/>
+                    <item value="UpDown"/>
+                  </model>
+                </properties>
               </component>
             </children>
           </grid>

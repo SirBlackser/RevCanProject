@@ -146,7 +146,12 @@ public class CanReader implements Runnable{
                 else {
                     //filterId = Integer.parseInt(textFieldValue, 16);
                     filterIds.clear();
-                    String[] toFilter = textFieldValue.split(";");
+                    String[] toFilter = null;
+                    if(textFieldValue.contains(";")) {
+                        toFilter = textFieldValue.split(";");
+                    } else if(textFieldValue.contains(",")) {
+                        toFilter = textFieldValue.split(",");
+                    }
                     for(int i = 0; i < toFilter.length; i++)
                     {
                         toFilter[i] = toFilter[i].replaceAll("\\s", "");
@@ -172,17 +177,18 @@ public class CanReader implements Runnable{
                     handle = new Handle(channel);
                     if(readBus) {
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
+                        messageHandler.setFinished(false);
                         handle.busOn();
                         log.append("channel opened\n");
+                        messageHandler.setHandle(handle);
+                        thandler = new Thread(messageHandler);
+                        thandler.start();
                     } else {
+                        messageHandler.setFinished(true);
                         handle.busOff();
                         handle.close();
                         log.append("channel closed\n");
                     }
-                    messageHandler.setHandle(handle);
-                    thandler = new Thread(messageHandler);
-                    thandler.start();
-
                 } catch(CanlibException o) {
                     System.err.println("failed to open channel: " + o);
                 }
@@ -270,7 +276,7 @@ public class CanReader implements Runnable{
         t = new Thread(parser);
         t.start();
 
-        messageHandler = new MessageHandler();
+        messageHandler = new MessageHandler(false);
     }
 
     private int getBitrate()

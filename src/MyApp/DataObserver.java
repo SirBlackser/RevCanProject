@@ -6,18 +6,26 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * Created by dries on 6/03/2017.
  */
 public class DataObserver implements Observer{
     private JTextArea textArea1;
+    private JTextArea textArea2;
+
+    private Map<String, String> latestMessages = new TreeMap<String, String>();
 
     public DataObserver(JTextArea textArea1){
         this.textArea1=textArea1;
         redirectSystemStreams();
+    }
+
+    public DataObserver(JTextArea textArea1, JTextArea textArea2){
+        this.textArea1=textArea1;
+        redirectSystemStreams();
+        this.textArea2=textArea2;
     }
 
     //print the text to the texArea
@@ -29,6 +37,7 @@ public class DataObserver implements Observer{
         String hexData = bytesToHex(m.data);
         String theTime = Long.toString(m.time);
         String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
+
         //String hexData = bytesToHex(m.data);
         if(!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)){
             System.out.printf("%s    %s\t%d  %s\n",
@@ -37,6 +46,15 @@ public class DataObserver implements Observer{
             System.out.printf("%s    %s\t%d  %s\n",
                     time, idString, m.length, hexData);
         }
+
+        latestMessages.put(idString, hexData);
+        StringBuilder messageString = new StringBuilder();
+        for(Map.Entry<String, String> message : latestMessages.entrySet())
+        {
+            messageString.append(message.getKey() + "\t" + message.getValue().replaceAll("..(?=..)", "$0 ") + "\n");
+        }
+        textArea2.setText(messageString.toString());
+
     }
 
     //converts the databytes to a hexString

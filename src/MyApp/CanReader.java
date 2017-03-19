@@ -45,6 +45,8 @@ public class CanReader implements Runnable{
     private JButton startStopButton;
     private JTextField textField9;
     private JComboBox comboBox2;
+    private JTabbedPane tabbedPane1;
+    private JTextArea textArea2;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -285,7 +287,7 @@ public class CanReader implements Runnable{
     public void run() {
         //dataGenerator = new DataGenerator();
         parser = new Parser();
-        dataObserver = new DataObserver(textArea1);
+        dataObserver = new DataObserver(textArea1, textArea2);
         parser.addObserver(dataObserver);
         t = new Thread(parser);
         t.start();

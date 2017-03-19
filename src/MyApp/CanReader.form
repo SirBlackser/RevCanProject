@@ -146,6 +146,7 @@
                           <component id="b2d08" class="javax.swing.JTextArea" binding="textArea2" default-binding="true">
                             <constraints/>
                             <properties>
+                              <editable value="false"/>
                               <font name="Courier New"/>
                             </properties>
                           </component>

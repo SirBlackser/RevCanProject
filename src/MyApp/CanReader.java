@@ -4,7 +4,6 @@ import core.Canlib;
 import obj.CanlibException;
 import obj.Handle;
 import obj.Message;
-import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -74,10 +73,71 @@ public class CanReader implements Runnable{
         channel = 0;
         bitRate = "500K";
         readBus = false;
-        importedMessages = new ArrayList<Message>();
+        importedMessages = new ArrayList<>();
         dataSorter = new DataSorter();
-        filterIds = new ArrayList<Integer>();
+        filterIds = new ArrayList<>();
         filterIds.add(-1);
+        sortedData = new Map<Integer, ArrayList<byte[]>>() {
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+
+            @Override
+            public boolean containsKey(Object key) {
+                return false;
+            }
+
+            @Override
+            public boolean containsValue(Object value) {
+                return false;
+            }
+
+            @Override
+            public ArrayList<byte[]> get(Object key) {
+                return null;
+            }
+
+            @Override
+            public ArrayList<byte[]> put(Integer key, ArrayList<byte[]> value) {
+                return null;
+            }
+
+            @Override
+            public ArrayList<byte[]> remove(Object key) {
+                return null;
+            }
+
+            @Override
+            public void putAll(Map<? extends Integer, ? extends ArrayList<byte[]>> m) {
+
+            }
+
+            @Override
+            public void clear() {
+
+            }
+
+            @Override
+            public Set<Integer> keySet() {
+                return null;
+            }
+
+            @Override
+            public Collection<ArrayList<byte[]>> values() {
+                return null;
+            }
+
+            @Override
+            public Set<Entry<Integer, ArrayList<byte[]>>> entrySet() {
+                return null;
+            }
+        };
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -89,7 +149,7 @@ public class CanReader implements Runnable{
 
     }
 
-    public CanReader() {
+    private CanReader() {
         //print the simulation (print the lines of a imported file).
         simulateButton.addActionListener(new ActionListener() {
             @Override
@@ -98,7 +158,11 @@ public class CanReader implements Runnable{
                 parser.setSimulation(true);
                 parser.resetIt();
                 parser.resetI();
-                parser.playPause();
+                if(parser.getPaused()) {
+                    parser.playPause(false);
+                } else {
+                    parser.playPause(true);
+                }
                 //JOptionPane.showMessageDialog(null,"hello");
             }
         });
@@ -171,16 +235,18 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //open channel to car
+        //start stream
         PlayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parser.setSimulation(false);
-                if(readBus) {
-                    parser.playPause();
+                if(readBus && parser.getPaused()) {
+                    parser.playPause(false);
+                    log.append("start reading stream\n");
                 }
                 else {
-                    parser.playPause();
+                    parser.playPause(true);
+                    log.append("stop reading stream\n");
                 }
                 if(readBus) {
                     messageHandler.setActive(true);
@@ -188,19 +254,15 @@ public class CanReader implements Runnable{
                     thandler = new Thread(messageHandler);
                     thandler.start();
                 } else {
-                    messageHandler.setActive(true);
+                    messageHandler.setActive(false);
                 }
             }
         });
+        //open channel to car
         openChannelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(readBus) {
-                    readBus = false;
-                }
-                else {
-                    readBus = true;
-                }
+                readBus = !readBus;
                 try{
                     handle = new Handle(channel);
                     if(readBus) {
@@ -208,6 +270,9 @@ public class CanReader implements Runnable{
                         handle.busOn();
                         log.append("channel opened\n");
                     } else {
+                        messageHandler.setSend(false);
+                        messageHandler.setActive(false);
+                        parser.setSimulation(true);
                         handle.busOff();
                         handle.close();
                         log.append("channel closed\n");
@@ -265,21 +330,22 @@ public class CanReader implements Runnable{
         startStopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(messageHandler.getsend() == false) {
+                if(!messageHandler.getsend()) {
                     messageHandler.setSend(true);
                     if (textField3.isValid() && textField4.isValid() && textField5.isValid()) {
                         // textField3 -> ID
                         // textField4 -> Inital Message
-                        messageHandler.setMessage(Integer.parseInt(textField3.getText()), parser.hexStringToByteArray(textField4.getText()));
-                        // textField5 -> important bytes
-                        messageHandler.setImportantBytes(textField5.getText());
+                        messageHandler.setMessage(Integer.parseInt(textField3.getText(),16), parser.hexStringToByteArray(textField4.getText()));
                     }
+                    log.append("start sending messages\n");
 
                     // textField6 -> increment
                     // textField7 -> upper limit
                     // textField8 -> lower limit
                     // textField9 -> increment speed in ms
-                    if (!comboBox1.getSelectedItem().toString().equals("None")) {
+                    if (!comboBox2.getSelectedItem().toString().equals("None")) {
+                        // textField5 -> important bytes
+                        messageHandler.setImportantBytes(textField5.getText());
                         messageHandler.setIncrement(Integer.parseInt(textField6.getText(), 16),
                                 Integer.parseInt(textField7.getText(), 16),
                                 Integer.parseInt(textField8.getText(), 16),
@@ -287,13 +353,14 @@ public class CanReader implements Runnable{
                     }
                 } else {
                     messageHandler.setSend(false);
+                    log.append("stop sending messages\n");
                 }
             }
         });
     }
 
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
+    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
             int v = bytes[j] & 0xFF;

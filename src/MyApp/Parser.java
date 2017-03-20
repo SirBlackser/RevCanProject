@@ -38,21 +38,31 @@ public class Parser extends Observable implements Runnable {
 
     public synchronized void syncLists() {this.importedMessages = CanReader.importedMessages;}
 
+    public boolean getPaused() {
+        return paused;
+    }
+
     //pauze printing the list
-    public void playPause(){
-        if(paused)
-            paused=false;
-        else {
-            paused = true;
-            //will stop the for loop, prints last message tho
-            i = importedMessages.size()-1;
+    public void playPause(boolean paused){
+        this.paused = paused;
+        if(paused) {
+            //paused = false;
+            if(simulation) {
+                //restart sim from first line
+                resetI();
+            } else {
+                //Set to last message
+                i = importedMessages.size() - 1;
+            }
+        } else {
+            //paused = true;
+            i = importedMessages.size() - 1;
         }
     }
 
     //restart the iterator and start printing the list.
     @Override
     public synchronized void run() {
-        resetI();
         while (true){
             try {
                 if(!paused) {
@@ -64,7 +74,12 @@ public class Parser extends Observable implements Runnable {
                         notifyObservers(importedMessages.get(i));
                     }
                     syncLists();
-                    currentLocation = i;
+                    if(importedMessages.size()-i > 4)
+                    {
+                        currentLocation = i+1;
+                    } else {
+                        currentLocation = i;
+                    }
                 } else {
                     Thread.sleep(1);
                 }
@@ -118,10 +133,10 @@ public class Parser extends Observable implements Runnable {
         StringBuilder s = new StringBuilder(split1[0]);
         s.deleteCharAt(0);
         s.deleteCharAt(s.length()-1);
-        s.deleteCharAt(s.length()-7);
         //split1[0] = split1[0].replace("\\(", "");
         //split1[0] = split1[0].replace("\\)", "");
         split1[0] = s.toString();
+        split1[0] = split1[0].replace(".", "");
         //split1[0] = split1[0].replace(".", ",");
 
         String[] split2 = split1[2].split("\\#");

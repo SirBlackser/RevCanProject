@@ -6,6 +6,8 @@ import obj.Message;
 
 import java.util.ArrayList;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 /**
  * Created by dries on 13/03/2017.
  */
@@ -22,11 +24,13 @@ public class MessageHandler implements Runnable {
     private int lowerLimit;
     private int incrementSpeed;
     private int mode;
+    private int counter;
 
     public MessageHandler(boolean active) {
         this.active = active;
         send = false;
         importantBytes = new ArrayList<>();
+        counter = 0;
     }
 
     public void setHandle(Handle handle) {
@@ -101,13 +105,23 @@ public class MessageHandler implements Runnable {
                 active = false;
             }
 
-            if(send == true) {
+            if(send && counter == 10) {
                 try {
                     handle.write(new Message(msgId, msgData, msgDlc, 0));
                     handle.writeSync(50);
+                    //log.append("sending\n");
+                    counter = 0;
                 } catch (CanlibException o) {
                     o.printStackTrace();
                     System.err.println("Could not write message to bus: " + o);
+                }
+            } else if(send) {
+                if(counter > 11 ) {
+                    counter = 0;
+                    //log.append("counter: " + counter + "\n");
+                } else {
+                    counter++;
+                    //log.append("counter: " + counter + "\n");
                 }
             }
 

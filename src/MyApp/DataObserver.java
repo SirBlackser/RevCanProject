@@ -36,6 +36,10 @@ public class DataObserver implements Observer{
         idString = idString.toUpperCase();
         String hexData = bytesToHex(m.data);
         String theTime = Long.toString(m.time);
+        if(theTime.length()<9)
+        {
+            theTime = String.format("%9s", theTime).replace(' ', '0');
+        }
         String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
 
         //String hexData = bytesToHex(m.data);

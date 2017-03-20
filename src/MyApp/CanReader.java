@@ -375,6 +375,10 @@ public class CanReader implements Runnable{
                         String idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
                         String hexData = bytesToHex(m.data);
                         String theTime = Long.toString(m.time);
+                        if(theTime.length()<9)
+                        {
+                            theTime = String.format("%9s", theTime).replace(' ', '0');
+                        }
                         String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
                         String str = "(" + time + ") can0 " + idString.toUpperCase() + "#" + hexData + "\n";
                         writer.write(str);

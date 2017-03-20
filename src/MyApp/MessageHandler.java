@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by dries on 13/03/2017.
  */
 public class MessageHandler implements Runnable {
-    private boolean Active;
+    private boolean active;
     private Handle handle;
     private boolean send;
     private int msgId;
@@ -23,8 +23,8 @@ public class MessageHandler implements Runnable {
     private int incrementSpeed;
     private int mode;
 
-    public MessageHandler(boolean Active) {
-        this.Active = Active;
+    public MessageHandler(boolean active) {
+        this.active = active;
         send = false;
         importantBytes = new ArrayList<>();
     }
@@ -37,12 +37,12 @@ public class MessageHandler implements Runnable {
         return this.handle;
     }
 
-    public void setActive(boolean Active) {
-        this.Active = Active;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public boolean getActive() {
-        return this.Active;
+        return this.active;
     }
 
     public void setSend(boolean send) {
@@ -89,7 +89,7 @@ public class MessageHandler implements Runnable {
 
     @Override
     public synchronized void run() {
-        while (!Active) {
+        while (active) {
             try {
                 while (handle.hasMessage()) {
                     Message m = handle.read();
@@ -97,17 +97,17 @@ public class MessageHandler implements Runnable {
                 }
             } catch (CanlibException e) {
                 e.printStackTrace();
-                System.err.println("An error occurred while reading messages");
-                Active = true;
+                System.err.println("An error occurred while reading messages: " + e);
+                active = false;
             }
 
-            if (send == true) {
+            if(send == true) {
                 try {
                     handle.write(new Message(msgId, msgData, msgDlc, 0));
                     handle.writeSync(50);
                 } catch (CanlibException o) {
                     o.printStackTrace();
-                    System.err.println("Could not write message to bus");
+                    System.err.println("Could not write message to bus: " + o);
                 }
             }
 

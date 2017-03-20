@@ -28,11 +28,8 @@ public class DataSorter {
     //sort the messages from a incoming data stream.
     public Map<Integer, ArrayList<byte[]>> addFromDataStream (Message message, Map<Integer, ArrayList<byte[]>> currentData ) {
         Map<Integer, ArrayList<byte[]>> sortedData = currentData;
-        ArrayList<byte[]> idMessages;
-        if(sortedData.get(message.id) == null)
-        {
-            idMessages = new ArrayList<byte[]>();
-        } else {
+        ArrayList<byte[]> idMessages = new ArrayList<byte[]>();;
+        if(sortedData.get(message.id) != null) {
             idMessages = sortedData.get(message.id);
         }
         idMessages.add(message.data);

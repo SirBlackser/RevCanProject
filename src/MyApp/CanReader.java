@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
@@ -47,6 +49,7 @@ public class CanReader implements Runnable{
     private JComboBox comboBox2;
     private JTabbedPane tabbedPane1;
     private JTextArea textArea2;
+    private JButton openChannelButton;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -78,7 +81,7 @@ public class CanReader implements Runnable{
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setBounds(500,250,500,500);
+        frame.setBounds(500,150,500,600);
         frame.setVisible(true);
         Thread canReaderThread = new Thread(canReader);
         canReaderThread.start();
@@ -147,17 +150,24 @@ public class CanReader implements Runnable{
                 else {
                     //filterId = Integer.parseInt(textFieldValue, 16);
                     filterIds.clear();
-                    String[] toFilter = null;
-                    if(textFieldValue.contains(";")) {
-                        toFilter = textFieldValue.split(";");
-                    } else if(textFieldValue.contains(",")) {
-                        toFilter = textFieldValue.split(",");
+                    if(textFieldValue.contains(";") || textFieldValue.contains(",")) {
+                        String[] toFilter = null;
+                        if(textFieldValue.contains(";")) {
+                            toFilter = textFieldValue.split(";");
+                        }
+                        else if(textFieldValue.contains(",")) {
+                            toFilter = textFieldValue.split(",");
+                        }
+                        for(int i = 0; i < toFilter.length; i++)
+                        {
+                            toFilter[i] = toFilter[i].replaceAll("\\s", "");
+                            filterIds.add(Integer.parseInt(toFilter[i],16));
+                        }
+                    } else {
+                        String toFilter = textField1.getText();
+                        filterIds.add(Integer.parseInt(toFilter,16));
                     }
-                    for(int i = 0; i < toFilter.length; i++)
-                    {
-                        toFilter[i] = toFilter[i].replaceAll("\\s", "");
-                        filterIds.add(Integer.parseInt(toFilter[i],16));
-                    }
+
                 }
             }
         });
@@ -167,25 +177,37 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 parser.setSimulation(false);
                 if(readBus) {
-                    readBus = false;
                     parser.playPause();
                 }
                 else {
-                    readBus = true;
                     parser.playPause();
+                }
+                if(readBus) {
+                    messageHandler.setActive(true);
+                    messageHandler.setHandle(handle);
+                    thandler = new Thread(messageHandler);
+                    thandler.start();
+                } else {
+                    messageHandler.setActive(true);
+                }
+            }
+        });
+        openChannelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(readBus) {
+                    readBus = false;
+                }
+                else {
+                    readBus = true;
                 }
                 try{
                     handle = new Handle(channel);
                     if(readBus) {
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
-                        messageHandler.setActive(false);
                         handle.busOn();
                         log.append("channel opened\n");
-                        messageHandler.setHandle(handle);
-                        thandler = new Thread(messageHandler);
-                        thandler.start();
                     } else {
-                        messageHandler.setActive(true);
                         handle.busOff();
                         handle.close();
                         log.append("channel closed\n");
@@ -193,7 +215,6 @@ public class CanReader implements Runnable{
                 } catch(CanlibException o) {
                     System.err.println("failed to open channel: " + o);
                 }
-
             }
         });
         saveButton.addActionListener(new ActionListener() {

@@ -6,8 +6,6 @@ import obj.Message;
 
 import java.util.ArrayList;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
-
 /**
  * Created by dries on 13/03/2017.
  */

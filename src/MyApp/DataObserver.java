@@ -15,7 +15,7 @@ public class DataObserver implements Observer{
     private JTextArea textArea1;
     private JTextArea textArea2;
 
-    private Map<String, String> latestMessages = new TreeMap<String, String>();
+    private Map<String, String> latestMessages = new TreeMap<>();
 
     public DataObserver(JTextArea textArea1){
         this.textArea1=textArea1;
@@ -69,8 +69,8 @@ public class DataObserver implements Observer{
         }
         return builder.toString();
     }*/
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
+    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
             int v = bytes[j] & 0xFF;

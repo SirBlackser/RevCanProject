@@ -22,7 +22,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="c1a2b" class="javax.swing.JButton" binding="PlayButton">
+              <component id="c1a2b" class="javax.swing.JButton" binding="PlayStreamButton">
                 <constraints>
                   <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -30,7 +30,7 @@
                   <text value="Play/Pause"/>
                 </properties>
               </component>
-              <component id="19060" class="javax.swing.JButton" binding="simulateButton" default-binding="true">
+              <component id="19060" class="javax.swing.JButton" binding="simulateStreamButton">
                 <constraints>
                   <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -130,7 +130,7 @@
                   <text value=""/>
                 </properties>
               </component>
-              <component id="f6c96" class="javax.swing.JButton" binding="setButton" default-binding="true">
+              <component id="f6c96" class="javax.swing.JButton" binding="setStreamIDButton">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -156,7 +156,7 @@
                   <text value=""/>
                 </properties>
               </component>
-              <component id="15161" class="javax.swing.JButton" binding="saveButton" default-binding="true">
+              <component id="15161" class="javax.swing.JButton" binding="saveFileButton">
                 <constraints>
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -223,7 +223,7 @@
                   <text value="0"/>
                 </properties>
               </component>
-              <component id="cc5ee" class="javax.swing.JButton" binding="applyButton" default-binding="true">
+              <component id="cc5ee" class="javax.swing.JButton" binding="applyChannelButton">
                 <constraints>
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -247,7 +247,7 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="826bb" class="javax.swing.JButton" binding="importButton" default-binding="true">
+              <component id="826bb" class="javax.swing.JButton" binding="importFileButton">
                 <constraints>
                   <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -413,7 +413,7 @@
                   <text value="way of looping"/>
                 </properties>
               </component>
-              <component id="e1697" class="javax.swing.JButton" binding="startStopButton" default-binding="true">
+              <component id="e1697" class="javax.swing.JButton" binding="startStopSpoofButton">
                 <constraints>
                   <grid row="7" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>

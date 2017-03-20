@@ -13,23 +13,17 @@ import obj.Message;
  */
 public class Parser extends Observable implements Runnable {
 
-    Iterator iterator;
-    int i;
+    private int i;
     int currentLocation;
     public boolean paused=true;
-    ArrayList<Message> importedMessages = new ArrayList<Message>();
-    boolean simulation;
+    private ArrayList<Message> importedMessages = new ArrayList<>();
+    private boolean simulation;
 
     public Parser()
     {
         i = 0;
         currentLocation = i;
         simulation = false;
-    }
-
-    //restart the itterator
-    public void resetIt(){
-        iterator = importedMessages.iterator();
     }
 
     public void setSimulation(boolean sim) {simulation = sim;}
@@ -94,16 +88,16 @@ public class Parser extends Observable implements Runnable {
     //                          timestamp           can  id#message
     public ArrayList<Message> parseDoc(File file)
     {
-        importedMessages = new ArrayList<>();;
+        importedMessages = new ArrayList<>();
         try {
             FileReader input = new FileReader(file);
             BufferedReader bufRead = new BufferedReader(input);
-            String myLine = null;
+            String myLine;
 
             while ( (myLine = bufRead.readLine()) != null)
             {
                 Message message = parseLine(myLine);
-                importedMessages.add(message);;
+                importedMessages.add(message);
             }
         } catch(FileNotFoundException e) {
             System.err.println("error parsing file: "+ e.getMessage());
@@ -123,7 +117,7 @@ public class Parser extends Observable implements Runnable {
         return b;
     }
 
-    public Message parseLine(String myLine)
+    private Message parseLine(String myLine)
     {
         //voorbeeld bericht: "(1487086751.815959) can0 153#200000FF00FF607E"
         String[] split1 = myLine.split(" ");
@@ -139,7 +133,7 @@ public class Parser extends Observable implements Runnable {
         split1[0] = split1[0].replace(".", "");
         //split1[0] = split1[0].replace(".", ",");
 
-        String[] split2 = split1[2].split("\\#");
+        String[] split2 = split1[2].split("#");
         //              split2[0] = "153"
         //              split2[1] = "20 00 00 FF 00 FF 60 7E"
 
@@ -148,8 +142,8 @@ public class Parser extends Observable implements Runnable {
         BigDecimal bd = new BigDecimal(split1[0]);
         long time = bd.longValue();
 
-        Message message = new Message(Integer.parseInt(split2[0],16), b, b.length, 0, time);
-        return message;
+        return new Message(Integer.parseInt(split2[0],16), b, b.length, 0, time);
+        //return message;
     }
 
 }

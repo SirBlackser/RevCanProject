@@ -27,23 +27,23 @@ public class CanReader implements Runnable{
     private JComboBox comboBox1;
     private JLabel BitRate;
     private JFormattedTextField a0FormattedTextField;
-    private JButton applyButton;
+    private JButton applyChannelButton;
     private JTextField textField1;
-    private JButton PlayButton;
+    private JButton PlayStreamButton;
     private JTextArea textArea1;
-    private JButton setButton;
+    private JButton setStreamIDButton;
     private JFormattedTextField formattedTextField1;
-    private JButton importButton;
-    private JButton simulateButton;
+    private JButton importFileButton;
+    private JButton simulateStreamButton;
     private JTextField textField2;
-    private JButton saveButton;
+    private JButton saveFileButton;
     private JTextField textField3;
     private JTextField textField4;
     private JTextField textField5;
     private JTextField textField6;
     private JTextField textField7;
     private JTextField textField8;
-    private JButton startStopButton;
+    private JButton startStopSpoofButton;
     private JTextField textField9;
     private JComboBox comboBox2;
     private JTabbedPane tabbedPane1;
@@ -151,12 +151,11 @@ public class CanReader implements Runnable{
 
     private CanReader() {
         //print the simulation (print the lines of a imported file).
-        simulateButton.addActionListener(new ActionListener() {
+        simulateStreamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //log.append("done Parsing\n");
                 parser.setSimulation(true);
-                parser.resetIt();
                 parser.resetI();
                 if(parser.getPaused()) {
                     parser.playPause(false);
@@ -167,7 +166,7 @@ public class CanReader implements Runnable{
             }
         });
         //set the channel properties
-        applyButton.addActionListener(new ActionListener() {
+        applyChannelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String textFieldValue = a0FormattedTextField.getText();
@@ -182,10 +181,10 @@ public class CanReader implements Runnable{
         //import a saved file of logs from the obd plug.
         //expected example message: (1487076865.178310) can0 220#F10300000000D40F
         //                          timestamp           can  id#message
-        importButton.addActionListener(new ActionListener() {
+        importFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int returnVal = fc.showOpenDialog(importButton.getParent());
+                int returnVal = fc.showOpenDialog(importFileButton.getParent());
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     file = fc.getSelectedFile();
@@ -202,7 +201,7 @@ public class CanReader implements Runnable{
             }
         });
         //set the filter for incoming messages on the message board.
-        setButton.addActionListener(new ActionListener() {
+        setStreamIDButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String textFieldValue = textField1.getText();
@@ -236,25 +235,83 @@ public class CanReader implements Runnable{
             }
         });
         //start stream
-        PlayButton.addActionListener(new ActionListener() {
+        PlayStreamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parser.setSimulation(false);
                 if(readBus && parser.getPaused()) {
                     parser.playPause(false);
                     log.append("start reading stream\n");
-                }
-                else {
-                    parser.playPause(true);
-                    log.append("stop reading stream\n");
-                }
-                if(readBus) {
+                    importedMessages = new ArrayList<>();
+                    sortedData = new Map<Integer, ArrayList<byte[]>>() {
+                        @Override
+                        public int size() {
+                            return 0;
+                        }
+
+                        @Override
+                        public boolean isEmpty() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean containsKey(Object key) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean containsValue(Object value) {
+                            return false;
+                        }
+
+                        @Override
+                        public ArrayList<byte[]> get(Object key) {
+                            return null;
+                        }
+
+                        @Override
+                        public ArrayList<byte[]> put(Integer key, ArrayList<byte[]> value) {
+                            return null;
+                        }
+
+                        @Override
+                        public ArrayList<byte[]> remove(Object key) {
+                            return null;
+                        }
+
+                        @Override
+                        public void putAll(Map<? extends Integer, ? extends ArrayList<byte[]>> m) {
+
+                        }
+
+                        @Override
+                        public void clear() {
+
+                        }
+
+                        @Override
+                        public Set<Integer> keySet() {
+                            return null;
+                        }
+
+                        @Override
+                        public Collection<ArrayList<byte[]>> values() {
+                            return null;
+                        }
+
+                        @Override
+                        public Set<Entry<Integer, ArrayList<byte[]>>> entrySet() {
+                            return null;
+                        }
+                    };
                     messageHandler.setActive(true);
                     messageHandler.setHandle(handle);
                     thandler = new Thread(messageHandler);
                     thandler.start();
                 } else {
                     messageHandler.setActive(false);
+                    parser.playPause(true);
+                    log.append("stop reading stream\n");
                 }
             }
         });
@@ -270,8 +327,9 @@ public class CanReader implements Runnable{
                         handle.busOn();
                         log.append("channel opened\n");
                     } else {
-                        messageHandler.setSend(false);
                         messageHandler.setActive(false);
+                        parser.playPause(true);
+                        log.append("stop reading stream\n");
                         parser.setSimulation(true);
                         handle.busOff();
                         handle.close();
@@ -282,7 +340,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        saveButton.addActionListener(new ActionListener() {
+        saveFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
@@ -296,7 +354,7 @@ public class CanReader implements Runnable{
                     //
                     chooser.setAcceptAllFileFilterUsed(false);
                     //
-                    if (chooser.showOpenDialog(saveButton.getParent()) == JFileChooser.APPROVE_OPTION) {
+                    if (chooser.showOpenDialog(saveFileButton.getParent()) == JFileChooser.APPROVE_OPTION) {
                         location = fc.getCurrentDirectory().getAbsolutePath() + "/";
                     /*System.out.println("getCurrentDirectory(): "
                             +  chooser.getCurrentDirectory());
@@ -327,7 +385,7 @@ public class CanReader implements Runnable{
 
             }
         });
-        startStopButton.addActionListener(new ActionListener() {
+        startStopSpoofButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!messageHandler.getsend()) {
@@ -402,7 +460,9 @@ public class CanReader implements Runnable{
 
     public static void saveIncomingStream(Message message)
     {
-        importedMessages.add(message);
-        sortedData = dataSorter.addFromDataStream(message, sortedData);
+        if(readBus) {
+            importedMessages.add(message);
+            sortedData = dataSorter.addFromDataStream(message, sortedData);
+        }
     }
 }

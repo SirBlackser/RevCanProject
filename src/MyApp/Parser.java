@@ -8,6 +8,8 @@ import java.util.Observable;
 
 import obj.Message;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 /**
  * Created by dries on 10/03/2017.
  */
@@ -37,43 +39,43 @@ public class Parser extends Observable implements Runnable {
     }
 
     //pauze printing the list
-    public void playPause(boolean paused){
+    public void setPause(boolean paused){
         this.paused = paused;
+        //log.append("setting pause: " + paused);
         if(paused) {
             //paused = false;
             if(simulation) {
                 //restart sim from first line
                 resetI();
-            } else {
-                //Set to last message
-                i = importedMessages.size() - 1;
             }
-        } else {
-            //paused = true;
-            i = importedMessages.size() - 1;
         }
     }
 
     //restart the iterator and start printing the list.
     @Override
     public synchronized void run() {
+        Message checker = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
         while (true){
             try {
                 if(!paused) {
-                    for (i = currentLocation; i < importedMessages.size(); i++) {
-                        if(simulation) {
-                            Thread.sleep(1);
-                        }
-                        setChanged();
-                        notifyObservers(importedMessages.get(i));
-                    }
+                    //for (i = currentLocation; i < importedMessages.size(); i++) {
                     syncLists();
-                    if(importedMessages.size()-i > 4)
+                    if(simulation) {
+                        Thread.sleep(1);
+                    }
+                    //log.append("notifying observer\n");
+                    if(importedMessages.size() != 0 && checker != importedMessages.get(importedMessages.size() - 1)) {
+                        setChanged();
+                        notifyObservers(importedMessages.get(importedMessages.size() - 1));
+                        checker = importedMessages.get(importedMessages.size() - 1);
+                    }
+                    //}
+                    /*if(importedMessages.size()-i > 4)
                     {
                         currentLocation = i+1;
                     } else {
                         currentLocation = i;
-                    }
+                    }*/
                 } else {
                     Thread.sleep(1);
                 }

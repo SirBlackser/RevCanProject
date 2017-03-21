@@ -51,7 +51,7 @@ public class MessageHandler implements Runnable {
         this.send = send;
     }
 
-    public boolean getsend() {
+    public boolean getSend() {
         return this.send;
     }
 
@@ -93,7 +93,7 @@ public class MessageHandler implements Runnable {
     public synchronized void run() {
         while (active) {
             try {
-                while (handle.hasMessage()) {
+                if (handle.hasMessage()) {
                     Message m = handle.read();
                     CanReader.saveIncomingStream(m);
                 }
@@ -122,7 +122,6 @@ public class MessageHandler implements Runnable {
                     //log.append("counter: " + counter + "\n");
                 }
             }
-
         }
     }
 }

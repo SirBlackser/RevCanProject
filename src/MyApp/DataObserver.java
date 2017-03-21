@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 /**
  * Created by dries on 6/03/2017.
  */
@@ -32,7 +34,12 @@ public class DataObserver implements Observer{
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message)arg;
-        String idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
+        String idString = "";
+        try {
+            idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
+        } catch (Exception e) {
+            log.append(e.getMessage());
+        }
         idString = idString.toUpperCase();
         String hexData = bytesToHex(m.data);
         String theTime = Long.toString(m.time);

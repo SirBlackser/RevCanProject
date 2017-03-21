@@ -65,6 +65,7 @@ public class CanReader implements Runnable{
     private static String bitRate;
     private static boolean readBus;
     public static ArrayList<Message> importedMessages;
+    private static int returnVal;
 
     public static void main(String[] args)
     {
@@ -158,9 +159,9 @@ public class CanReader implements Runnable{
                 parser.setSimulation(true);
                 parser.resetI();
                 if(parser.getPaused()) {
-                    parser.playPause(false);
+                    parser.setPause(false);
                 } else {
-                    parser.playPause(true);
+                    parser.setPause(true);
                 }
                 //JOptionPane.showMessageDialog(null,"hello");
             }
@@ -184,7 +185,7 @@ public class CanReader implements Runnable{
         importFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int returnVal = fc.showOpenDialog(importFileButton.getParent());
+                returnVal = fc.showOpenDialog(importFileButton.getParent());
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     file = fc.getSelectedFile();
@@ -234,87 +235,6 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //start stream
-        PlayStreamButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parser.setSimulation(false);
-                if(readBus && parser.getPaused()) {
-                    parser.playPause(false);
-                    log.append("start reading stream\n");
-                    importedMessages = new ArrayList<>();
-                    sortedData = new Map<Integer, ArrayList<byte[]>>() {
-                        @Override
-                        public int size() {
-                            return 0;
-                        }
-
-                        @Override
-                        public boolean isEmpty() {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean containsKey(Object key) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean containsValue(Object value) {
-                            return false;
-                        }
-
-                        @Override
-                        public ArrayList<byte[]> get(Object key) {
-                            return null;
-                        }
-
-                        @Override
-                        public ArrayList<byte[]> put(Integer key, ArrayList<byte[]> value) {
-                            return null;
-                        }
-
-                        @Override
-                        public ArrayList<byte[]> remove(Object key) {
-                            return null;
-                        }
-
-                        @Override
-                        public void putAll(Map<? extends Integer, ? extends ArrayList<byte[]>> m) {
-
-                        }
-
-                        @Override
-                        public void clear() {
-
-                        }
-
-                        @Override
-                        public Set<Integer> keySet() {
-                            return null;
-                        }
-
-                        @Override
-                        public Collection<ArrayList<byte[]>> values() {
-                            return null;
-                        }
-
-                        @Override
-                        public Set<Entry<Integer, ArrayList<byte[]>>> entrySet() {
-                            return null;
-                        }
-                    };
-                    messageHandler.setActive(true);
-                    messageHandler.setHandle(handle);
-                    thandler = new Thread(messageHandler);
-                    thandler.start();
-                } else {
-                    messageHandler.setActive(false);
-                    parser.playPause(true);
-                    log.append("stop reading stream\n");
-                }
-            }
-        });
         //open channel to car
         openChannelButton.addActionListener(new ActionListener() {
             @Override
@@ -328,7 +248,7 @@ public class CanReader implements Runnable{
                         log.append("channel opened\n");
                     } else {
                         messageHandler.setActive(false);
-                        parser.playPause(true);
+                        parser.setPause(true);
                         log.append("stop reading stream\n");
                         parser.setSimulation(true);
                         handle.busOff();
@@ -340,6 +260,36 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //start stream
+        PlayStreamButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parser.setSimulation(false);
+                if(readBus && parser.getPaused()) {
+                    parser.setPause(false);
+                    //long time = System.currentTimeMillis();
+                    importedMessages.clear();
+                    //log.append(new Long(System.currentTimeMillis()-time).toString());
+                    sortedData.clear();
+                    log.append("all clear!\n");
+                    messageHandler.setActive(true);
+                    messageHandler.setHandle(handle);
+                    thandler = new Thread(messageHandler);
+                    thandler.start();
+                    log.append("start reading stream\n");
+                } else {
+                    messageHandler.setActive(false);
+                    /*try {
+                        thandler.join();
+                    } catch (InterruptedException o) {
+                        log.append(o.getMessage());
+                    }*/
+                    parser.setPause(true);
+                    log.append("stop reading stream\n");
+                }
+            }
+        });
+        //export all recorded messages to a file
         saveFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -362,7 +312,7 @@ public class CanReader implements Runnable{
                             +  chooser.getSelectedFile());*/
                     }
                     else {
-                        System.out.println("No Selection ");
+                        log.append("No Selection \n");
                     }
                     //String location = "C:/Users/dries/CanlibWrapperTest/TestFiles/";
                     String fileName =  location + textField2.getText() + ".log";
@@ -380,11 +330,17 @@ public class CanReader implements Runnable{
                             theTime = String.format("%9s", theTime).replace(' ', '0');
                         }
                         String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
-                        String str = "(" + time + ") can0 " + idString.toUpperCase() + "#" + hexData + "\n";
+                        String str;
+                        try {
+                            str = "(" + time + ") can" + channel + " " + idString.toUpperCase() + "#" + hexData + "\n";
+                        } catch (Exception o) {
+                            str = o.getMessage();
+                        }
                         writer.write(str);
                     }
+                    writer.close();
                 } catch (IOException o) {
-                    System.out.println("Failed saving file: " + o);
+                    log.append("Failed saving file: " + o);
                 }
 
             }
@@ -392,7 +348,7 @@ public class CanReader implements Runnable{
         startStopSpoofButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!messageHandler.getsend()) {
+                if(!messageHandler.getSend()) {
                     messageHandler.setSend(true);
                     if (textField3.isValid() && textField4.isValid() && textField5.isValid()) {
                         // textField3 -> ID

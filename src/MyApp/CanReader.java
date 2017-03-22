@@ -49,6 +49,9 @@ public class CanReader implements Runnable{
     private JTabbedPane tabbedPane1;
     private JTextArea textArea2;
     private JButton openChannelButton;
+    private JTextField byteToPrint;
+    private JButton SetGraphVar;
+    private JTextField idToPrint;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -157,11 +160,13 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 //log.append("done Parsing\n");
                 parser.setSimulation(true);
-                parser.resetI();
                 if(parser.getPaused()) {
                     parser.setPause(false);
+                    parser.resetI();
+                    log.append("start streaming\n");
                 } else {
                     parser.setPause(true);
+                    log.append("stop streaming\n");
                 }
                 //JOptionPane.showMessageDialog(null,"hello");
             }
@@ -372,6 +377,25 @@ public class CanReader implements Runnable{
                 } else {
                     messageHandler.setSend(false);
                     log.append("stop sending messages\n");
+                }
+            }
+        });
+        SetGraphVar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int printId = Integer.parseInt(idToPrint.getText());
+                ArrayList<Integer> BytesToDraw= new ArrayList<>();
+                String bytes = byteToPrint.toString();
+                if(bytes.contains("-"))
+                {
+                    String[] borders = bytes.split("-");
+                    for(int i = 0; i < borders.length; i++)
+                    {
+                        BytesToDraw.add(Integer.parseInt(borders[i]));
+                    }
+
+                } else {
+                    BytesToDraw.add(Integer.parseInt(bytes));
                 }
             }
         });

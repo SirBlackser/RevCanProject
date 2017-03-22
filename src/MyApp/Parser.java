@@ -42,13 +42,6 @@ public class Parser extends Observable implements Runnable {
     public void setPause(boolean paused){
         this.paused = paused;
         //log.append("setting pause: " + paused);
-        if(paused) {
-            //paused = false;
-            if(simulation) {
-                //restart sim from first line
-                resetI();
-            }
-        }
     }
 
     //restart the iterator and start printing the list.
@@ -62,12 +55,16 @@ public class Parser extends Observable implements Runnable {
                     syncLists();
                     if(simulation) {
                         Thread.sleep(1);
-                    }
-                    //log.append("notifying observer\n");
-                    if(importedMessages.size() != 0 && checker != importedMessages.get(importedMessages.size() - 1)) {
                         setChanged();
-                        notifyObservers(importedMessages.get(importedMessages.size() - 1));
-                        checker = importedMessages.get(importedMessages.size() - 1);
+                        notifyObservers(importedMessages.get(i));
+                        i++;
+                    } else {
+                        //log.append("notifying observer\n");
+                        if (importedMessages.size() != 0 && checker != importedMessages.get(importedMessages.size() - 1)) {
+                            setChanged();
+                            notifyObservers(importedMessages.get(importedMessages.size() - 1));
+                            checker = importedMessages.get(importedMessages.size() - 1);
+                        }
                     }
                     //}
                     /*if(importedMessages.size()-i > 4)

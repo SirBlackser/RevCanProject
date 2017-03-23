@@ -16,7 +16,6 @@ import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 public class Parser extends Observable implements Runnable {
 
     private int i;
-    int currentLocation;
     public boolean paused=true;
     private ArrayList<Message> importedMessages = new ArrayList<>();
     private boolean simulation;
@@ -24,13 +23,12 @@ public class Parser extends Observable implements Runnable {
     public Parser()
     {
         i = 0;
-        currentLocation = i;
         simulation = false;
     }
 
     public void setSimulation(boolean sim) {simulation = sim;}
 
-    public void resetI() { i=0; currentLocation = i;}
+    public void resetI() { i=0;}
 
     public synchronized void syncLists() {this.importedMessages = CanReader.importedMessages;}
 
@@ -66,13 +64,6 @@ public class Parser extends Observable implements Runnable {
                             checker = importedMessages.get(importedMessages.size() - 1);
                         }
                     }
-                    //}
-                    /*if(importedMessages.size()-i > 4)
-                    {
-                        currentLocation = i+1;
-                    } else {
-                        currentLocation = i;
-                    }*/
                 } else {
                     Thread.sleep(1);
                 }

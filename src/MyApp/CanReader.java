@@ -8,6 +8,8 @@ import obj.Message;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -62,7 +64,7 @@ public class CanReader implements Runnable{
     private static DataSorter dataSorter;
     //static int filterId = -1;
     public static ArrayList<Integer> filterIds;
-    private static Map<Integer, ArrayList<byte[]>> sortedData;
+    private static Map<Integer, ArrayList<Message>> sortedData;
     private Handle handle;
     private static int channel;
     private static String bitRate;
@@ -81,73 +83,18 @@ public class CanReader implements Runnable{
         dataSorter = new DataSorter();
         filterIds = new ArrayList<>();
         filterIds.add(-1);
-        sortedData = new Map<Integer, ArrayList<byte[]>>() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                return false;
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return false;
-            }
-
-            @Override
-            public ArrayList<byte[]> get(Object key) {
-                return null;
-            }
-
-            @Override
-            public ArrayList<byte[]> put(Integer key, ArrayList<byte[]> value) {
-                return null;
-            }
-
-            @Override
-            public ArrayList<byte[]> remove(Object key) {
-                return null;
-            }
-
-            @Override
-            public void putAll(Map<? extends Integer, ? extends ArrayList<byte[]>> m) {
-
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Set<Integer> keySet() {
-                return null;
-            }
-
-            @Override
-            public Collection<ArrayList<byte[]>> values() {
-                return null;
-            }
-
-            @Override
-            public Set<Entry<Integer, ArrayList<byte[]>>> entrySet() {
-                return null;
-            }
-        };
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setBounds(500,150,500,600);
         frame.setVisible(true);
         Thread canReaderThread = new Thread(canReader);
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
         canReaderThread.start();
         //frame.setLocation(500,250);
 

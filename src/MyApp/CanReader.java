@@ -6,6 +6,7 @@ import obj.Handle;
 import obj.Message;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -54,6 +55,7 @@ public class CanReader implements Runnable{
     private JTextField byteToPrint;
     private JButton SetGraphVar;
     private JTextField idToPrint;
+    private JPanel graphPlotter;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -86,7 +88,7 @@ public class CanReader implements Runnable{
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setBounds(500,150,500,600);
+        frame.setBounds(500,150,700,600);
         frame.setVisible(true);
         Thread canReaderThread = new Thread(canReader);
         frame.addWindowListener(new WindowAdapter() {
@@ -395,5 +397,9 @@ public class CanReader implements Runnable{
             importedMessages.add(message);
             sortedData = dataSorter.addFromDataStream(message, sortedData);
         }
+    }
+
+    private void createUIComponents() {
+        graphPlotter = new GraphPanel(30000);
     }
 }

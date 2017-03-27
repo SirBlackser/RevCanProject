@@ -46,8 +46,8 @@ public class CanReader implements Runnable{
     private JTextField textField6;
     private JTextField textField7;
     private JTextField textField8;
-    private JButton startStopSpoofButton;
     private JTextField textField9;
+    private JButton startStopSpoofButton;
     private JComboBox comboBox2;
     private JTabbedPane tabbedPane1;
     private JTextArea textArea2;
@@ -55,7 +55,7 @@ public class CanReader implements Runnable{
     private JTextField byteToPrint;
     private JButton SetGraphVar;
     private JTextField idToPrint;
-    private JPanel graphPlotter;
+    private GraphPanel graphPanel;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -73,6 +73,7 @@ public class CanReader implements Runnable{
     private static boolean readBus;
     public static ArrayList<Message> importedMessages;
     private static int returnVal;
+    public static Map<Integer, ArrayList<Integer>> toDrawGraphs;
 
     public static void main(String[] args)
     {
@@ -82,6 +83,67 @@ public class CanReader implements Runnable{
         bitRate = "500K";
         readBus = false;
         importedMessages = new ArrayList<>();
+        sortedData = new Map<Integer, ArrayList<Message>>() {
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+
+            @Override
+            public boolean containsKey(Object key) {
+                return false;
+            }
+
+            @Override
+            public boolean containsValue(Object value) {
+                return false;
+            }
+
+            @Override
+            public ArrayList<Message> get(Object key) {
+                return null;
+            }
+
+            @Override
+            public ArrayList<Message> put(Integer key, ArrayList<Message> value) {
+                return null;
+            }
+
+            @Override
+            public ArrayList<Message> remove(Object key) {
+                return null;
+            }
+
+            @Override
+            public void putAll(Map<? extends Integer, ? extends ArrayList<Message>> m) {
+
+            }
+
+            @Override
+            public void clear() {
+
+            }
+
+            @Override
+            public Set<Integer> keySet() {
+                return null;
+            }
+
+            @Override
+            public Collection<ArrayList<Message>> values() {
+                return null;
+            }
+
+            @Override
+            public Set<Entry<Integer, ArrayList<Message>>> entrySet() {
+                return null;
+            }
+        };
         dataSorter = new DataSorter();
         filterIds = new ArrayList<>();
         filterIds.add(-1);
@@ -222,9 +284,11 @@ public class CanReader implements Runnable{
                 if(readBus && parser.getPaused()) {
                     parser.setPause(false);
                     //long time = System.currentTimeMillis();
-                    importedMessages.clear();
+                    if(!importedMessages.isEmpty())
+                        importedMessages.clear();
                     //log.append(new Long(System.currentTimeMillis()-time).toString());
-                    sortedData.clear();
+                    if(!sortedData.isEmpty())
+                        sortedData.clear();
                     log.append("all clear!\n");
                     messageHandler.setActive(true);
                     messageHandler.setHandle(handle);
@@ -332,19 +396,18 @@ public class CanReader implements Runnable{
         SetGraphVar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int printId = Integer.parseInt(idToPrint.getText());
-                ArrayList<Integer> BytesToDraw= new ArrayList<>();
-                String bytes = byteToPrint.toString();
-                if(bytes.contains("-"))
-                {
-                    String[] borders = bytes.split("-");
-                    for(int i = 0; i < borders.length; i++)
-                    {
-                        BytesToDraw.add(Integer.parseInt(borders[i]));
+                int printId = Integer.parseInt(idToPrint.getText(), 16);
+                if (toDrawGraphs.get(printId).equals(null)) {
+                    ArrayList<Integer> BytesToDraw = new ArrayList<>();
+                    String bytes = byteToPrint.toString();
+                    if (bytes.contains("-")) {
+                        String[] borders = bytes.split("-");
+                        BytesToDraw.add(Integer.parseInt(borders[0]));
+                        BytesToDraw.add(Integer.parseInt(borders[1]));
+                    } else {
+                        BytesToDraw.add(Integer.parseInt(bytes));
                     }
-
-                } else {
-                    BytesToDraw.add(Integer.parseInt(bytes));
+                    toDrawGraphs.put(printId,BytesToDraw);
                 }
             }
         });
@@ -365,13 +428,13 @@ public class CanReader implements Runnable{
     @Override
     public void run() {
         //dataGenerator = new DataGenerator();
-        parser = new Parser();
+        parser = new Parser(this);
         dataObserver = new DataObserver(textArea1, textArea2);
         parser.addObserver(dataObserver);
         t = new Thread(parser);
         t.start();
 
-        messageHandler = new MessageHandler(false);
+        messageHandler = new MessageHandler(false, this);
     }
 
     private int getBitrate()
@@ -391,15 +454,21 @@ public class CanReader implements Runnable{
         return busRate;
     }
 
-    public static void saveIncomingStream(Message message)
+    public void saveIncomingStream(Message message)
     {
         if(readBus) {
             importedMessages.add(message);
             sortedData = dataSorter.addFromDataStream(message, sortedData);
+            parser.addObserver(graphPanel);
         }
     }
 
+    public static Message getLatestMessage()
+    {
+        return importedMessages.get(importedMessages.size()-1);
+    }
+
     private void createUIComponents() {
-        graphPlotter = new GraphPanel(30000);
+        graphPanel = new GraphPanel(30000);
     }
 }

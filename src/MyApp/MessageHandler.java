@@ -24,11 +24,14 @@ public class MessageHandler implements Runnable {
     private int mode;
     private int counter;
 
-    public MessageHandler(boolean active) {
+    private CanReader canReader;
+
+    public MessageHandler(boolean active, CanReader canReader) {
         this.active = active;
         send = false;
         importantBytes = new ArrayList<>();
         counter = 0;
+        this.canReader = canReader;
     }
 
     public void setHandle(Handle handle) {
@@ -95,7 +98,7 @@ public class MessageHandler implements Runnable {
             try {
                 if (handle.hasMessage()) {
                     Message m = handle.read();
-                    CanReader.saveIncomingStream(m);
+                    canReader.saveIncomingStream(m);
                 }
             } catch (CanlibException e) {
                 e.printStackTrace();

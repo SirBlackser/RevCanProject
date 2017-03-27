@@ -33,39 +33,38 @@ public class DataObserver implements Observer{
     //print the text to the texArea
     @Override
     public void update(Observable o, Object arg) {
-        Message m = (Message)arg;
-        String idString = "";
-        try {
-            idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
-        } catch (Exception e) {
-            log.append(e.getMessage());
-        }
-        idString = idString.toUpperCase();
-        String hexData = bytesToHex(m.data);
-        String theTime = Long.toString(m.time);
-        if(theTime.length()<9)
-        {
-            theTime = String.format("%9s", theTime).replace(' ', '0');
-        }
-        String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
+        Message m = (Message) arg;
+        if(!m.equals(null)) {
+            String idString = "";
+            try {
+                idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
+            } catch (Exception e) {
+                log.append(e.getMessage());
+            }
+            idString = idString.toUpperCase();
+            String hexData = bytesToHex(m.data);
+            String theTime = Long.toString(m.time);
+            if (theTime.length() < 9) {
+                theTime = String.format("%9s", theTime).replace(' ', '0');
+            }
+            String time = theTime.substring(0, theTime.length() - 3) + "." + theTime.substring(theTime.length() - 3);
 
-        //String hexData = bytesToHex(m.data);
-        if(!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)){
-            System.out.printf("%s    %s\t%d  %s\n",
-                    time, idString, m.length, hexData);
-        }else if(CanReader.filterIds.contains(-1)){
-            System.out.printf("%s    %s\t%d  %s\n",
-                    time, idString, m.length, hexData);
-        }
+            //String hexData = bytesToHex(m.data);
+            if (!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)) {
+                System.out.printf("%s    %s\t%d  %s\n",
+                        time, idString, m.length, hexData);
+            } else if (CanReader.filterIds.contains(-1)) {
+                System.out.printf("%s    %s\t%d  %s\n",
+                        time, idString, m.length, hexData);
+            }
 
-        latestMessages.put(idString, hexData);
-        StringBuilder messageString = new StringBuilder();
-        for(Map.Entry<String, String> message : latestMessages.entrySet())
-        {
-            messageString.append(message.getKey() + "\t" + message.getValue().replaceAll("..(?=..)", "$0 ") + "\n");
+            latestMessages.put(idString, hexData);
+            StringBuilder messageString = new StringBuilder();
+            for (Map.Entry<String, String> message : latestMessages.entrySet()) {
+                messageString.append(message.getKey() + "\t" + message.getValue().replaceAll("..(?=..)", "$0 ") + "\n");
+            }
+            textArea2.setText(messageString.toString());
         }
-        textArea2.setText(messageString.toString());
-
     }
 
     //converts the databytes to a hexString

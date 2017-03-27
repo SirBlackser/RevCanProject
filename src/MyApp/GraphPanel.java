@@ -14,24 +14,23 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Created by dries on 24/03/2017.
  */
-public class GraphPanel extends JPanel{
+public class GraphPanel extends JPanel implements Observer{
 
     /** Time series for total memory used. */
     private TimeSeries total;
     /** Time series for free memory. */
     private TimeSeries free;
 
-
-    HashMap<Integer, ArrayList<Message>> messages;
+    private Map<Integer, ArrayList<Integer>> toDrawGraphs;
 
     public GraphPanel(int maxAge){
         super(new BorderLayout());
@@ -45,7 +44,7 @@ public class GraphPanel extends JPanel{
         dataset.addSeries(this.total);
         dataset.addSeries(this.free);
         DateAxis domain = new DateAxis("Time");
-        NumberAxis range = new NumberAxis("Bytes");
+        NumberAxis range = new NumberAxis("Byte data");
         domain.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         range.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         domain.setLabelFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -65,7 +64,7 @@ public class GraphPanel extends JPanel{
         domain.setUpperMargin(0.0);
         domain.setTickLabelsVisible(true);
         range.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        JFreeChart chart = new JFreeChart("JVM Memory Usage", new Font("SansSerif", Font.BOLD, 24), plot, true);
+        JFreeChart chart = new JFreeChart("Byte visualisation", new Font("SansSerif", Font.BOLD, 24), plot, true);
         chart.setBackgroundPaint(Color.white);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -95,6 +94,27 @@ public class GraphPanel extends JPanel{
         this.free.add(new Millisecond(), y);
     }
 
+    public void addObservation(Message message)
+    {
+        if(toDrawGraphs.containsKey(message.id))
+        {
+            ArrayList<Integer> bytes = toDrawGraphs.get(message.id);
+            String dataString = "";
+            byte[] data = message.data;
+            for(int i = 0; i < bytes.size(); i++)
+            {
+                int temp = data[bytes.get(i)];
+                dataString += Integer.toString(temp);
+            }
+            int output = Integer.parseInt(dataString);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
+    }
+
     /**
      * The data generator.
      */
@@ -104,7 +124,7 @@ public class GraphPanel extends JPanel{
          *
          * @param interval the interval (in milliseconds)
          */
-        DataGenerator(int interval) {
+        public DataGenerator(int interval) {
             super(interval, null);
             addActionListener(this);
         }

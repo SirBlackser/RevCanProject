@@ -19,9 +19,11 @@ public class Parser extends Observable implements Runnable {
     public boolean paused=true;
     private ArrayList<Message> importedMessages = new ArrayList<>();
     private boolean simulation;
+    private CanReader canReader;
 
-    public Parser()
+    public Parser(CanReader canReader)
     {
+        this.canReader = canReader;
         i = 0;
         simulation = false;
     }
@@ -30,7 +32,7 @@ public class Parser extends Observable implements Runnable {
 
     public void resetI() { i=0;}
 
-    public synchronized void syncLists() {this.importedMessages = CanReader.importedMessages;}
+    private synchronized void syncLists() {this.importedMessages = canReader.importedMessages;}
 
     public boolean getPaused() {
         return paused;

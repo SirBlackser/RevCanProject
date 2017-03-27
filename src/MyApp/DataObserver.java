@@ -16,19 +16,17 @@ import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 public class DataObserver implements Observer{
     private JTextArea textArea1;
     private JTextArea textArea2;
+    private GraphPanel graphPanel;
 
     private Map<String, String> latestMessages = new TreeMap<>();
 
-    public DataObserver(JTextArea textArea1){
-        this.textArea1=textArea1;
-        redirectSystemStreams();
-    }
-
-    public DataObserver(JTextArea textArea1, JTextArea textArea2){
+    public DataObserver(JTextArea textArea1, JTextArea textArea2, GraphPanel graphPanel){
         this.textArea1=textArea1;
         redirectSystemStreams();
         this.textArea2=textArea2;
+        this.graphPanel=graphPanel;
     }
+
 
     //print the text to the texArea
     @Override
@@ -64,17 +62,12 @@ public class DataObserver implements Observer{
                 messageString.append(message.getKey() + "\t" + message.getValue().replaceAll("..(?=..)", "$0 ") + "\n");
             }
             textArea2.setText(messageString.toString());
+
+            graphPanel.addObservation(m);
         }
     }
 
     //converts the databytes to a hexString
-   /* public static String bytesToHex(byte[] in) {
-        final StringBuilder builder = new StringBuilder();
-        for(byte b : in) {
-            builder.append(Character.toString((char)b));
-        }
-        return builder.toString();
-    }*/
     final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
     private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];

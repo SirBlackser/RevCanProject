@@ -429,7 +429,7 @@ public class CanReader implements Runnable{
     public void run() {
         //dataGenerator = new DataGenerator();
         parser = new Parser(this);
-        dataObserver = new DataObserver(textArea1, textArea2);
+        dataObserver = new DataObserver(textArea1, textArea2, graphPanel);
         parser.addObserver(dataObserver);
         t = new Thread(parser);
         t.start();

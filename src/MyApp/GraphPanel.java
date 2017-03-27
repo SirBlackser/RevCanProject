@@ -72,8 +72,8 @@ public class GraphPanel extends JPanel implements Observer{
                 BorderFactory.createLineBorder(Color.black)));
         add(chartPanel);
 
-        DataGenerator d = new DataGenerator(100);
-        d.start();
+        //DataGenerator d = new DataGenerator(100);
+        //d.start();
 
     }
 
@@ -96,18 +96,22 @@ public class GraphPanel extends JPanel implements Observer{
 
     public void addObservation(Message message)
     {
-        if(toDrawGraphs.containsKey(message.id))
+        if(Integer.toHexString(message.id).equals("80"))
         {
-            ArrayList<Integer> bytes = toDrawGraphs.get(message.id);
-            String dataString = "";
-            byte[] data = message.data;
-            for(int i = 0; i < bytes.size(); i++)
-            {
-                int temp = data[bytes.get(i)];
-                dataString += Integer.toString(temp);
-            }
-            int output = Integer.parseInt(dataString);
+            this.total.add(new Millisecond(), Byte.toUnsignedInt(message.data[0]));
         }
+//        if(toDrawGraphs.containsKey(message.id))
+//        {
+//            ArrayList<Integer> bytes = toDrawGraphs.get(message.id);
+//            String dataString = "";
+//            byte[] data = message.data;
+//            for(int i = 0; i < bytes.size(); i++)
+//            {
+//                int temp = data[bytes.get(i)];
+//                dataString += Integer.toString(temp);
+//            }
+//            int output = Integer.parseInt(dataString);
+//        }
     }
 
     @Override
@@ -118,27 +122,27 @@ public class GraphPanel extends JPanel implements Observer{
     /**
      * The data generator.
      */
-    class DataGenerator extends Timer implements ActionListener {
-        /**
-         * Constructor.
-         *
-         * @param interval the interval (in milliseconds)
-         */
-        public DataGenerator(int interval) {
-            super(interval, null);
-            addActionListener(this);
-        }
-
-        /**
-         * Adds a new free/total memory reading to the dataset.
-         *
-         * @param event the action event.
-         */
-        public void actionPerformed(ActionEvent event) {
-            long f = Runtime.getRuntime().freeMemory();
-            long t = Runtime.getRuntime().totalMemory();
-            addTotalObservation(t);
-            addFreeObservation(f);
-        }
-    }
+//    class DataGenerator extends Timer implements ActionListener {
+//        /**
+//         * Constructor.
+//         *
+//         * @param interval the interval (in milliseconds)
+//         */
+//        public DataGenerator(int interval) {
+//            super(interval, null);
+//            addActionListener(this);
+//        }
+//
+//        /**
+//         * Adds a new free/total memory reading to the dataset.
+//         *
+//         * @param event the action event.
+//         */
+//        public void actionPerformed(ActionEvent event) {
+//            long f = Runtime.getRuntime().freeMemory();
+//            long t = Runtime.getRuntime().totalMemory();
+//            addTotalObservation(t);
+//            addFreeObservation(f);
+//        }
+//    }
 }

@@ -26,23 +26,24 @@ import java.util.*;
 public class GraphPanel extends JPanel implements Observer{
 
     /** Time series for total memory used. */
-    private TimeSeries total;
     /** Time series for free memory. */
-    private TimeSeries free;
+    //private TimeSeries free;
 
-    private Map<Integer, ArrayList<Integer>> toDrawGraphs;
+    private TimeSeriesCollection dataset = new TimeSeriesCollection();
+
+    HashMap<Integer,TimeSeries> currentGraphs;
 
     public GraphPanel(int maxAge){
         super(new BorderLayout());
+        currentGraphs = new HashMap<Integer, TimeSeries>();
 
         // seconds old...
-        this.total = new TimeSeries("ID X", Millisecond.class);
-        this.total.setMaximumItemAge(maxAge);
-        this.free = new TimeSeries("ID Y", Millisecond.class);
-        this.free.setMaximumItemAge(maxAge);
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        dataset.addSeries(this.total);
-        dataset.addSeries(this.free);
+        //this.total = new TimeSeries("ID X", Millisecond.class);
+        //this.total.setMaximumItemAge(maxAge);
+        //this.free = new TimeSeries("ID Y", Millisecond.class);
+        //this.free.setMaximumItemAge(maxAge);
+        //dataset.addSeries(this.total);
+        //dataset.addSeries(this.free);
         DateAxis domain = new DateAxis("Time");
         NumberAxis range = new NumberAxis("Byte data");
         domain.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -80,26 +81,47 @@ public class GraphPanel extends JPanel implements Observer{
     /**
      * Adds an observation to the ’total memory’ time series.
      *
-     * @param y the total memory used.
-     */
     private void addTotalObservation(double y) {
         this.total.add(new Millisecond(), y);
     }
     /**
      * Adds an observation to the ’free memory’ time series.
      *
-     * @param y the free memory.
-     */
     private void addFreeObservation(double y) {
         this.free.add(new Millisecond(), y);
-    }
+    }*/
 
     public void addObservation(Message message)
     {
-        if(Integer.toHexString(message.id).equals("80"))
+        HashMap<Integer, ArrayList<Integer>> toDrawGraphs = CanReader.toDrawGraphs;
+        if(toDrawGraphs.containsKey(message.id) && !currentGraphs.containsKey(message.id))
         {
-            this.total.add(new Millisecond(), Byte.toUnsignedInt(message.data[0]));
+            TimeSeries total = new TimeSeries(Integer.toHexString(message.id).toUpperCase(), Millisecond.class);
+            //30 seconden
+            //total.add(new Millisecond(), Byte.toUnsignedInt(message.data[0]));
+            total.setMaximumItemAge(30000);
+            total.setMaximumItemCount(20000);
+            dataset.addSeries(total);
+            currentGraphs.put(message.id, total);
+        } else if(!toDrawGraphs.containsKey(message.id) && currentGraphs.containsKey(message.id)) {
+            dataset.removeSeries(currentGraphs.get(message.id));
+            currentGraphs.remove(message.id);
+        } else if(currentGraphs.containsKey(message.id) && toDrawGraphs.size() > 0){
+            ArrayList<Integer> BytesToDraw = toDrawGraphs.get(message.id);
+            byte messageData[] = message.data;
+            int data = 0;
+            if(BytesToDraw.size() == 1)
+            {
+                data = Byte.toUnsignedInt(message.data[BytesToDraw.get(0)]);
+            } else {
+                String dataString = bytesToHex(messageData);
+                String dataDraw = dataString.substring(BytesToDraw.get(0), BytesToDraw.get(1));
+                data = Integer.parseInt(dataDraw,16);
+            }
+            currentGraphs.get(message.id).addOrUpdate(new Millisecond(), data);
         }
+
+
 //        if(toDrawGraphs.containsKey(message.id))
 //        {
 //            ArrayList<Integer> bytes = toDrawGraphs.get(message.id);
@@ -112,6 +134,17 @@ public class GraphPanel extends JPanel implements Observer{
 //            }
 //            int output = Integer.parseInt(dataString);
 //        }
+    }
+
+    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     @Override

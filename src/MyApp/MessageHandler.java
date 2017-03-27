@@ -98,7 +98,7 @@ public class MessageHandler implements Runnable {
             try {
                 if (handle.hasMessage()) {
                     Message m = handle.read();
-                    canReader.saveIncomingStream(m);
+                    CanReader.saveIncomingStream(m);
                 }
             } catch (CanlibException e) {
                 e.printStackTrace();

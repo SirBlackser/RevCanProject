@@ -6,7 +6,6 @@ import obj.Handle;
 import obj.Message;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -14,10 +13,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
@@ -56,6 +52,7 @@ public class CanReader implements Runnable{
     private JButton SetGraphVar;
     private JTextField idToPrint;
     private GraphPanel graphPanel;
+    private JButton RemoveGraph;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -66,14 +63,14 @@ public class CanReader implements Runnable{
     private static DataSorter dataSorter;
     //static int filterId = -1;
     public static ArrayList<Integer> filterIds;
-    private static Map<Integer, ArrayList<Message>> sortedData;
     private Handle handle;
     private static int channel;
     private static String bitRate;
     private static boolean readBus;
     public static ArrayList<Message> importedMessages;
     private static int returnVal;
-    public static Map<Integer, ArrayList<Integer>> toDrawGraphs;
+    public static HashMap<Integer, ArrayList<Integer>> toDrawGraphs;
+    private static HashMap<Integer, ArrayList<Message>> sortedData;
 
     public static void main(String[] args)
     {
@@ -83,70 +80,11 @@ public class CanReader implements Runnable{
         bitRate = "500K";
         readBus = false;
         importedMessages = new ArrayList<>();
-        sortedData = new Map<Integer, ArrayList<Message>>() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                return false;
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return false;
-            }
-
-            @Override
-            public ArrayList<Message> get(Object key) {
-                return null;
-            }
-
-            @Override
-            public ArrayList<Message> put(Integer key, ArrayList<Message> value) {
-                return null;
-            }
-
-            @Override
-            public ArrayList<Message> remove(Object key) {
-                return null;
-            }
-
-            @Override
-            public void putAll(Map<? extends Integer, ? extends ArrayList<Message>> m) {
-
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Set<Integer> keySet() {
-                return null;
-            }
-
-            @Override
-            public Collection<ArrayList<Message>> values() {
-                return null;
-            }
-
-            @Override
-            public Set<Entry<Integer, ArrayList<Message>>> entrySet() {
-                return null;
-            }
-        };
         dataSorter = new DataSorter();
         filterIds = new ArrayList<>();
         filterIds.add(-1);
+        toDrawGraphs = new HashMap<>();
+        sortedData = new HashMap<>();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -397,9 +335,9 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 int printId = Integer.parseInt(idToPrint.getText(), 16);
-                if (toDrawGraphs.get(printId).equals(null)) {
+                if (toDrawGraphs.get(printId) == null) {
                     ArrayList<Integer> BytesToDraw = new ArrayList<>();
-                    String bytes = byteToPrint.toString();
+                    String bytes = byteToPrint.getText();
                     if (bytes.contains("-")) {
                         String[] borders = bytes.split("-");
                         BytesToDraw.add(Integer.parseInt(borders[0]));
@@ -408,6 +346,16 @@ public class CanReader implements Runnable{
                         BytesToDraw.add(Integer.parseInt(bytes));
                     }
                     toDrawGraphs.put(printId,BytesToDraw);
+                }
+            }
+        });
+        RemoveGraph.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int printId = Integer.parseInt(idToPrint.getText(), 16);
+                if(toDrawGraphs.get(printId)!=null)
+                {
+                    toDrawGraphs.remove(printId);
                 }
             }
         });
@@ -454,12 +402,12 @@ public class CanReader implements Runnable{
         return busRate;
     }
 
-    public void saveIncomingStream(Message message)
+    public static void saveIncomingStream(Message message)
     {
         if(readBus) {
             importedMessages.add(message);
             sortedData = dataSorter.addFromDataStream(message, sortedData);
-            parser.addObserver(graphPanel);
+            //parser.addObserver(graphPanel);
         }
     }
 

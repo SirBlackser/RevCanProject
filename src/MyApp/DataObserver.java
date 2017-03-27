@@ -32,7 +32,7 @@ public class DataObserver implements Observer{
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message) arg;
-        if(!m.equals(null)) {
+        if(m != null) {
             String idString = "";
             try {
                 idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
@@ -62,7 +62,6 @@ public class DataObserver implements Observer{
                 messageString.append(message.getKey() + "\t" + message.getValue().replaceAll("..(?=..)", "$0 ") + "\n");
             }
             textArea2.setText(messageString.toString());
-
             graphPanel.addObservation(m);
         }
     }

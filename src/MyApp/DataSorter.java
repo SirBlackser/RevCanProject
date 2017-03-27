@@ -14,8 +14,8 @@ public class DataSorter {
     }
 
     //sort the messages from a file.
-    public Map<Integer, ArrayList<Message>> SortParsedData(ArrayList<Message> messageList) {
-        Map<Integer, ArrayList<Message>> sortedData = new HashMap<Integer, ArrayList<Message>>();
+    public HashMap<Integer, ArrayList<Message>> SortParsedData(ArrayList<Message> messageList) {
+        HashMap<Integer, ArrayList<Message>> sortedData = new HashMap<Integer, ArrayList<Message>>();
         Iterator iterator = messageList.iterator();
         while(iterator.hasNext())
         {
@@ -26,8 +26,8 @@ public class DataSorter {
     }
 
     //sort the messages from a incoming data stream.
-    public Map<Integer, ArrayList<Message>> addFromDataStream (Message message, Map<Integer, ArrayList<Message>> currentData ) {
-        Map<Integer, ArrayList<Message>> sortedData = currentData;
+    public HashMap<Integer, ArrayList<Message>> addFromDataStream (Message message, HashMap<Integer, ArrayList<Message>> currentData ) {
+        HashMap<Integer, ArrayList<Message>> sortedData = currentData;
         ArrayList<Message> idMessages = new ArrayList<>();
         if(sortedData.get(message.id) != null) {
             idMessages = sortedData.get(message.id);

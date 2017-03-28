@@ -107,17 +107,21 @@ public class CanReader implements Runnable{
         simulateStreamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //log.append("done Parsing\n");
-                parser.setSimulation(true);
-                if(parser.getPaused()) {
-                    parser.setPause(false);
-                    parser.resetI();
-                    log.append("start streaming\n");
+                if(file != null) {
+                    //log.append("done Parsing\n");
+                    parser.setSimulation(true);
+                    if (parser.getPaused()) {
+                        parser.setPause(false);
+                        parser.resetI();
+                        log.append("start streaming\n");
+                    } else {
+                        parser.setPause(true);
+                        log.append("stop streaming\n");
+                    }
+                    //JOptionPane.showMessageDialog(null,"hello");
                 } else {
-                    parser.setPause(true);
-                    log.append("stop streaming\n");
+                    log.append("no file selected \n");
                 }
-                //JOptionPane.showMessageDialog(null,"hello");
             }
         });
         //set the channel properties

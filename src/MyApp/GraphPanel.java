@@ -104,6 +104,7 @@ public class GraphPanel extends JPanel implements Observer{
             dataset.addSeries(total);
             currentGraphs.put(message.id, total);
         } else if(!toDrawGraphs.containsKey(message.id) && currentGraphs.containsKey(message.id)) {
+            currentGraphs.get(message.id).clear();
             dataset.removeSeries(currentGraphs.get(message.id));
             currentGraphs.remove(message.id);
         } else if(currentGraphs.containsKey(message.id) && toDrawGraphs.size() > 0){

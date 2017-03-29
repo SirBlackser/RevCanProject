@@ -54,7 +54,7 @@ public class Parser extends Observable implements Runnable {
                     //for (i = currentLocation; i < importedMessages.size(); i++) {
                     syncLists();
                     if(simulation) {
-                        Thread.sleep(2);
+                        Thread.sleep(1);
                         setChanged();
                         notifyObservers(importedMessages.get(i));
                         i++;

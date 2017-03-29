@@ -96,7 +96,8 @@ public class GraphPanel extends JPanel implements Observer{
         HashMap<Integer, String> toDrawGraphs = CanReader.toDrawGraphs;
         if(toDrawGraphs.containsKey(message.id) && !currentGraphs.containsKey(message.id))
         {
-            TimeSeries total = new TimeSeries(Integer.toHexString(message.id).toUpperCase(), Millisecond.class);
+            String name = Integer.toHexString(message.id).toUpperCase() + "-" + toDrawGraphs.get(message.id);
+            TimeSeries total = new TimeSeries(name, Millisecond.class);
             //30 seconden
             //total.add(new Millisecond(), Byte.toUnsignedInt(message.data[0]));
             total.setMaximumItemAge(30000);

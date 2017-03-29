@@ -69,7 +69,7 @@ public class CanReader implements Runnable{
     private static boolean readBus;
     public static ArrayList<Message> importedMessages;
     private static int returnVal;
-    public static HashMap<Integer, ArrayList<Integer>> toDrawGraphs;
+    public static HashMap<Integer, String> toDrawGraphs;
     private static HashMap<Integer, ArrayList<Message>> sortedData;
 
     public static void main(String[] args)
@@ -342,14 +342,14 @@ public class CanReader implements Runnable{
                 if (toDrawGraphs.get(printId) == null) {
                     ArrayList<Integer> BytesToDraw = new ArrayList<>();
                     String bytes = byteToPrint.getText();
-                    if (bytes.contains("-")) {
+                    /*if (bytes.contains("-")) {
                         String[] borders = bytes.split("-");
                         BytesToDraw.add(Integer.parseInt(borders[0]));
                         BytesToDraw.add(Integer.parseInt(borders[1]));
                     } else {
                         BytesToDraw.add(Integer.parseInt(bytes));
-                    }
-                    toDrawGraphs.put(printId,BytesToDraw);
+                    }*/
+                    toDrawGraphs.put(printId,bytes);
                 }
             }
         });

@@ -93,7 +93,7 @@ public class GraphPanel extends JPanel implements Observer{
 
     public void addObservation(Message message)
     {
-        HashMap<Integer, ArrayList<Integer>> toDrawGraphs = CanReader.toDrawGraphs;
+        HashMap<Integer, String> toDrawGraphs = CanReader.toDrawGraphs;
         if(toDrawGraphs.containsKey(message.id) && !currentGraphs.containsKey(message.id))
         {
             TimeSeries total = new TimeSeries(Integer.toHexString(message.id).toUpperCase(), Millisecond.class);
@@ -108,7 +108,14 @@ public class GraphPanel extends JPanel implements Observer{
             dataset.removeSeries(currentGraphs.get(message.id));
             currentGraphs.remove(message.id);
         } else if(currentGraphs.containsKey(message.id) && toDrawGraphs.size() > 0){
-            ArrayList<Integer> BytesToDraw = toDrawGraphs.get(message.id);
+            ArrayList<Integer> BytesToDraw = new ArrayList<>();
+            if (toDrawGraphs.get(message.id).contains("-")) {
+                String[] borders = toDrawGraphs.get(message.id).split("-");
+                BytesToDraw.add(Integer.parseInt(borders[0]));
+                BytesToDraw.add(Integer.parseInt(borders[1]));
+            } else {
+                BytesToDraw.add(Integer.parseInt(toDrawGraphs.get(message.id)));
+            }
             byte messageData[] = message.data;
             int data = 0;
             if(BytesToDraw.size() == 1)

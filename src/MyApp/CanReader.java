@@ -53,6 +53,13 @@ public class CanReader implements Runnable{
     private JTextField idToPrint;
     private GraphPanel graphPanel;
     private JButton RemoveGraph;
+    private JComboBox comboBox3;
+    private JButton throttleTestButton;
+    private JButton RPMTestButton;
+    private JButton speedTestButton;
+    private JLabel ThrottleID;
+    private JLabel RPMID;
+    private JLabel SpeedID;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -71,6 +78,7 @@ public class CanReader implements Runnable{
     private static int returnVal;
     public static HashMap<Integer, String> toDrawGraphs;
     private static HashMap<Integer, ArrayList<Message>> sortedData;
+    private static ArrayList<Integer> foundIDS;
 
     public static void main(String[] args)
     {
@@ -85,6 +93,7 @@ public class CanReader implements Runnable{
         filterIds.add(-1);
         toDrawGraphs = new HashMap<>();
         sortedData = new HashMap<>();
+        foundIDS = new ArrayList<>();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -231,6 +240,8 @@ public class CanReader implements Runnable{
                     //log.append(new Long(System.currentTimeMillis()-time).toString());
                     if(!sortedData.isEmpty())
                         sortedData.clear();
+                    if(!foundIDS.isEmpty())
+                        foundIDS.clear();
                     log.append("all clear!\n");
                     messageHandler.setActive(true);
                     messageHandler.setHandle(handle);
@@ -363,6 +374,13 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        throttleTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //response on 7E8, ID 11, 45, 49, 47, 4A, 4C
+                //ThrottleID.setText("ID is 81");
+            }
+        });
     }
 
     final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -412,6 +430,14 @@ public class CanReader implements Runnable{
             importedMessages.add(message);
             sortedData = dataSorter.addFromDataStream(message, sortedData);
             //parser.addObserver(graphPanel);
+            if(foundIDS.isEmpty())
+            {
+                foundIDS.add(message.id);
+            }
+            //alternatief ArrayUtils.contains(foundIDS, message.id);
+            else if (!Arrays.asList(foundIDS).contains(message.id)){
+                foundIDS.add(message.id);
+            }
         }
     }
 

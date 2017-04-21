@@ -18,6 +18,8 @@ import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.*;
 
 /**
@@ -123,9 +125,17 @@ public class GraphPanel extends JPanel implements Observer{
             {
                 data = Byte.toUnsignedInt(message.data[BytesToDraw.get(0)]);
             } else {
-                String dataString = bytesToHex(messageData);
-                String dataDraw = dataString.substring(BytesToDraw.get(0), BytesToDraw.get(1));
-                data = Integer.parseInt(dataDraw,16);
+                //String dataString = bytesToHex(messageData);
+                //String dataDraw = dataString.substring(BytesToDraw.get(0), BytesToDraw.get(1));
+                //data = Integer.parseInt(dataDraw,16);
+                byte bytes[] = new byte[BytesToDraw.get(1)-BytesToDraw.get(0)+1];
+                for (int i = BytesToDraw.get(0); i <= BytesToDraw.get(1); i++)
+                {
+                    bytes[i-BytesToDraw.get(0)] = messageData[i];
+                }
+                ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                buffer.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
+                data = buffer.getShort();
             }
             currentGraphs.get(message.id).addOrUpdate(new Millisecond(), data);
         }

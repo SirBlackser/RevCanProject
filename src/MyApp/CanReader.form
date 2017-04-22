@@ -27,7 +27,7 @@
                   <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Play/Pause"/>
+                  <text value="Play"/>
                 </properties>
               </component>
               <component id="19060" class="javax.swing.JButton" binding="simulateStreamButton">
@@ -109,7 +109,7 @@
                   <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Open/close channel"/>
+                  <text value="Open channel"/>
                 </properties>
               </component>
               <component id="ef4ac" class="javax.swing.JLabel">

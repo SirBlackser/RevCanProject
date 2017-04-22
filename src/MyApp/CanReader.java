@@ -213,6 +213,7 @@ public class CanReader implements Runnable{
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
                         handle.busOn();
                         log.append("channel opened\n");
+                        openChannelButton.setText("Close Channel");
                     } else {
                         messageHandler.setActive(false);
                         parser.setPause(true);
@@ -221,6 +222,7 @@ public class CanReader implements Runnable{
                         handle.busOff();
                         handle.close();
                         log.append("channel closed\n");
+                        openChannelButton.setText("Open Channel");
                     }
                 } catch(CanlibException o) {
                     System.err.println("failed to open channel: " + o);
@@ -234,6 +236,7 @@ public class CanReader implements Runnable{
                 parser.setSimulation(false);
                 if(readBus && parser.getPaused()) {
                     parser.setPause(false);
+                    PlayStreamButton.setText("Pause");
                     //long time = System.currentTimeMillis();
                     if(!importedMessages.isEmpty())
                         importedMessages.clear();
@@ -250,6 +253,7 @@ public class CanReader implements Runnable{
                     log.append("start reading stream\n");
                 } else {
                     messageHandler.setActive(false);
+                    PlayStreamButton.setText("Play");
                     /*try {
                         thandler.join();
                     } catch (InterruptedException o) {
@@ -430,14 +434,14 @@ public class CanReader implements Runnable{
             importedMessages.add(message);
             sortedData = dataSorter.addFromDataStream(message, sortedData);
             //parser.addObserver(graphPanel);
-            if(foundIDS.isEmpty())
+            /*if(foundIDS.isEmpty())
             {
                 foundIDS.add(message.id);
             }
             //alternatief ArrayUtils.contains(foundIDS, message.id);
             else if (!Arrays.asList(foundIDS).contains(message.id)){
                 foundIDS.add(message.id);
-            }
+            }*/
         }
     }
 

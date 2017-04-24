@@ -17,15 +17,13 @@ public class RMSCalculator {
 
     public RMSCalculator() { }
 
-    public ArrayList<Integer> calculateRMS(HashMap<Integer, ArrayList<Message>> sortedData, ArrayList<Message> importedMessages)
+    public ArrayList<ArrayList<Float>> calculateRMS(HashMap<Integer, ArrayList<Message>> sortedData, ArrayList<Message> importedMessages)
     {
-        ArrayList<Integer> error = new ArrayList<>();
-        error.add(-1);
         HashMap<Integer, ArrayList<Message>> data = new HashMap<>();
         data = sortedData;
         ArrayList<Message> allMessages = importedMessages;
-        ArrayList<Integer> answer = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> answers = new ArrayList<>();
+        //ArrayList<Float> answer = new ArrayList<>();
+        ArrayList<ArrayList<Float>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
 
@@ -36,7 +34,7 @@ public class RMSCalculator {
             //beginTime = knowData.get(0).time;
             //endTime = knowData.get(knowData.size()-1).time;
         } else {
-            return error;
+            return null;
         }
 
         Set<Integer> keys = data.keySet();
@@ -45,7 +43,7 @@ public class RMSCalculator {
         byte[] OBDdata =  knowData.get(0).data;
         int dataLength = Byte.toUnsignedInt(OBDdata[0])-2;
         Iterator<Integer> iterator = keys.iterator();
-        float lowestRMS = -1;
+        float rms = 0;
         while(iterator.hasNext())
         {
             int key = iterator.next();
@@ -99,20 +97,65 @@ public class RMSCalculator {
                     }
                 }
 
-                if(lowestRMS == -1 && sumOfarray != 0 ) {
-                    answer.add(key);
-                    answer.add(i);
-                    answer.add(dataLength);
-                    lowestRMS = (currentdifference/canData.size());
-                } else if(lowestRMS > (currentdifference/canData.size()) && sumOfarray != 0) {
+                if(answers.size() < 3 && sumOfarray != 0 ) {
+                    ArrayList<Float> answer = new ArrayList<>();
+                    rms = (currentdifference/canData.size());
+                    answer.add(rms);
+                    answer.add((float)key);
+                    answer.add((float)i);
+                    answer.add((float)dataLength);
+                    answers.add(answer);
+                    answers = sort(answers);
+                } else if(sumOfarray != 0){
+                    ArrayList<Float> answer = new ArrayList<>();
                     answer.clear();
-                    answer.add(key);
-                    answer.add(i);
-                    answer.add(dataLength);
-                    lowestRMS = (currentdifference/canData.size());
+                    rms = (currentdifference/canData.size());
+                    answer.add(rms);
+                    answer.add((float)key);
+                    answer.add((float)i);
+                    answer.add((float)dataLength);
+                    if(rms < answers.get(2).get(0))
+                    {
+                        answers.remove(2);
+                        answers.add(answer);
+                        answers = sort(answers);
+                    }
                 }
             }
         }
-        return answer;
+        return answers;
+    }
+
+    private ArrayList<ArrayList<Float>> sort(ArrayList<ArrayList<Float>> answers)
+    {
+        ArrayList<ArrayList<Float>> sorted = new ArrayList<>();
+        if(answers.size() == 1)
+        {
+            sorted = answers;
+        }
+        else if(answers.size() == 2)
+        {
+            if(answers.get(0).get(0) > answers.get(1).get(0))
+            {
+                sorted.add(answers.get(1));
+                sorted.add(answers.get(0));
+            } else {
+                sorted = answers;
+            }
+        } else if(answers.size() == 3) {
+            if(answers.get(0).get(0) > answers.get(2).get(0))
+            {
+                sorted.add(answers.get(2));
+                sorted.add(answers.get(0));
+                sorted.add(answers.get(1));
+            } else if(answers.get(1).get(0) > answers.get(2).get(0)) {
+                sorted.add(answers.get(0));
+                sorted.add(answers.get(2));
+                sorted.add(answers.get(1));
+            } else {
+                sorted = answers;
+            }
+        }
+        return sorted;
     }
 }

@@ -396,16 +396,23 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 if(sortedData.containsKey(2024))
                 {
-                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
-                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp).replace(' ', '0');
                     checker.toUpperCase();
                     if(checker.equals("11") || checker.equals("45") || checker.equals("47")) {
-                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                        if (answer.get(2) == 1) {
-                            ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answers.get(0).get(3) == 1) {
+                            ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
+                            ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
+                            ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
                         } else {
-                            int temp = answer.get(1) + (answer.get(2) - 1);
-                            ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
+                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
+                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
+                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
+                            ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
+                            ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
                         }
                         ThrottleFound = true;
                     } else if(ThrottleFound == false){
@@ -422,16 +429,23 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 if(sortedData.containsKey(2024))
                 {
-                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
-                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp).replace(' ', '0');
                     checker.toUpperCase();
                     if(checker.equals("0c")) {
-                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                        if (answer.get(2) == 1) {
-                            RPMID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answers.get(0).get(3) == 1) {
+                            RPMID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
+                            RPMID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
+                            RPMID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
                         } else {
-                            int temp = answer.get(1) + (answer.get(2) - 1);
-                            RPMID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
+                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
+                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
+                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            RPMID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
+                            RPMID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
+                            RPMID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
                         }
                         rpmFound = true;
                     } else if(rpmFound == false){
@@ -448,16 +462,23 @@ public class CanReader implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 if(sortedData.containsKey(2024))
                 {
-                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
-                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp).replace(' ', '0');
                     checker.toUpperCase();
                     if(checker.equals("0d")) {
-                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                        if (answer.get(2) == 1) {
-                            SpeedID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answers.get(0).get(3) == 1) {
+                            SpeedID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
+                            SpeedID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
+                            SpeedID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
                         } else {
-                            int temp = answer.get(1) + (answer.get(2) - 1);
-                            SpeedID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
+                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
+                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
+                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                            SpeedID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
+                            SpeedID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
+                            SpeedID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
                         }
                         speedFound = true;
                     } else if(speedFound == false) {

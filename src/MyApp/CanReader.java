@@ -57,9 +57,16 @@ public class CanReader implements Runnable{
     private JButton throttleTestButton;
     private JButton RPMTestButton;
     private JButton speedTestButton;
-    private JLabel ThrottleID;
-    private JLabel RPMID;
-    private JLabel SpeedID;
+    private JLabel ThrottleID1;
+    private JLabel RPMID1;
+    private JLabel SpeedID1;
+    private JLabel ThrottleID2;
+    private JLabel ThrottleID3;
+    private JLabel RPMID2;
+    private JLabel RPMID3;
+    private JLabel SpeedID2;
+    private JLabel SpeedID3;
+    private JList ThrottleResults;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -80,6 +87,9 @@ public class CanReader implements Runnable{
     private static HashMap<Integer, ArrayList<Message>> sortedData;
     private static ArrayList<Integer> foundIDS;
     private static RMSCalculator rmsCalculator;
+    private boolean rpmFound = false;
+    private boolean speedFound = false;
+    private boolean ThrottleFound = false;
 
     public static void main(String[] args)
     {
@@ -382,26 +392,79 @@ public class CanReader implements Runnable{
         });
         throttleTestButton.addActionListener(new ActionListener() {
             @Override
+            //known obd codes: 11, 45, 47
             public void actionPerformed(ActionEvent e) {
-                ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                if(answer.get(2) == 1) {
-                    ThrottleID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
-                } else {
-                    int temp = answer.get(1)+answer.get(2);
-                    ThrottleID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                if(sortedData.containsKey(2024))
+                {
+                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    checker.toUpperCase();
+                    if(checker.equals("11") || checker.equals("45") || checker.equals("47")) {
+                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answer.get(2) == 1) {
+                            ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        } else {
+                            int temp = answer.get(1) + (answer.get(2) - 1);
+                            ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                        }
+                        ThrottleFound = true;
+                    } else if(ThrottleFound == false){
+                        ThrottleID1.setText("right obd code not present (throttle: 11 or 45 or 47)");
+                    }
+                } else if(ThrottleFound == false){
+                    ThrottleID1.setText("no obd messages pressent");
                 }
-
             }
         });
         RPMTestButton.addActionListener(new ActionListener() {
             @Override
+            //know obd code: 0C
             public void actionPerformed(ActionEvent e) {
-                ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                if(answer.get(2) == 1) {
-                    RPMID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
-                } else {
-                    int temp = answer.get(1)+answer.get(2);
-                    RPMID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                if(sortedData.containsKey(2024))
+                {
+                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    checker.toUpperCase();
+                    if(checker.equals("0c")) {
+                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answer.get(2) == 1) {
+                            RPMID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        } else {
+                            int temp = answer.get(1) + (answer.get(2) - 1);
+                            RPMID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                        }
+                        rpmFound = true;
+                    } else if(rpmFound == false){
+                        RPMID1.setText("right obd code not present (engine rpm: 0C)");
+                    }
+                } else if(rpmFound == false) {
+                    RPMID1.setText("no obd messages pressent");
+                }
+            }
+        });
+        speedTestButton.addActionListener(new ActionListener() {
+            @Override
+            //know obd code: 0D
+            public void actionPerformed(ActionEvent e) {
+                if(sortedData.containsKey(2024))
+                {
+                    String temp1 = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
+                    String checker = String.format("%2s", temp1).replace(' ', '0');
+                    checker.toUpperCase();
+                    if(checker.equals("0d")) {
+                        ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if (answer.get(2) == 1) {
+                            SpeedID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                        } else {
+                            int temp = answer.get(1) + (answer.get(2) - 1);
+                            SpeedID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                        }
+                        speedFound = true;
+                    } else if(speedFound == false) {
+                        SpeedID1.setText("right obd code not present (vehicle speed: 0D)");
+                    }
+                } else if(speedFound == false) {
+                    SpeedID1.setText("no obd messages present");
                 }
             }
         });

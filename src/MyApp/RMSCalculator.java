@@ -21,9 +21,11 @@ public class RMSCalculator {
     {
         ArrayList<Integer> error = new ArrayList<>();
         error.add(-1);
-        HashMap<Integer, ArrayList<Message>> data = sortedData;
+        HashMap<Integer, ArrayList<Message>> data = new HashMap<>();
+        data = sortedData;
         ArrayList<Message> allMessages = importedMessages;
         ArrayList<Integer> answer = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
 
@@ -38,7 +40,7 @@ public class RMSCalculator {
         }
 
         Set<Integer> keys = data.keySet();
-        keys.remove(new Integer(2024));
+        //keys.remove(new Integer(2024));
 
         byte[] OBDdata =  knowData.get(0).data;
         int dataLength = Byte.toUnsignedInt(OBDdata[0])-2;
@@ -47,6 +49,10 @@ public class RMSCalculator {
         while(iterator.hasNext())
         {
             int key = iterator.next();
+            if(key == 2024)
+            {
+                key = iterator.next();
+            }
             ArrayList<Message> canData = new ArrayList<>();
             ArrayList<Message> obdData = new ArrayList<>();
             Message temp = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
@@ -85,11 +91,11 @@ public class RMSCalculator {
                         ByteBuffer bufferCan = ByteBuffer.wrap(bytesCan);
                         ByteBuffer bufferOBD = ByteBuffer.wrap(bytesOBD);
                         bufferCan.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
-                        bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
+                        //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                         int tempCan = bufferCan.getShort();
                         int tempObd = bufferOBD.getShort();
                         currentdifference += Math.pow((double)(tempCan- tempObd),2);
-                        sumOfarray += bufferCan.getShort();
+                        sumOfarray += tempCan;
                     }
                 }
 

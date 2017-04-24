@@ -79,11 +79,13 @@ public class CanReader implements Runnable{
     public static HashMap<Integer, String> toDrawGraphs;
     private static HashMap<Integer, ArrayList<Message>> sortedData;
     private static ArrayList<Integer> foundIDS;
+    private static RMSCalculator rmsCalculator;
 
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("CanApp");
         CanReader canReader = new CanReader();
+        rmsCalculator = new RMSCalculator();
         channel = 0;
         bitRate = "500K";
         readBus = false;
@@ -381,8 +383,26 @@ public class CanReader implements Runnable{
         throttleTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //response on 7E8, ID 11, 45, 49, 47, 4A, 4C
-                //ThrottleID.setText("ID is 81");
+                ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                if(answer.get(2) == 1) {
+                    ThrottleID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                } else {
+                    int temp = answer.get(1)+answer.get(2);
+                    ThrottleID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                }
+
+            }
+        });
+        RPMTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Integer> answer = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                if(answer.get(2) == 1) {
+                    RPMID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte: " + answer.get(1));
+                } else {
+                    int temp = answer.get(1)+answer.get(2);
+                    RPMID.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+                }
             }
         });
     }

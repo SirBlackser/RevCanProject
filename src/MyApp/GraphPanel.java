@@ -35,6 +35,7 @@ public class GraphPanel extends JPanel implements Observer{
 
     HashMap<Integer,TimeSeries> currentGraphs;
 
+    //set the graphPanel parameters, is used as a costum interface for the GUI.
     public GraphPanel(int maxAge){
         super(new BorderLayout());
         currentGraphs = new HashMap<Integer, TimeSeries>();
@@ -93,6 +94,12 @@ public class GraphPanel extends JPanel implements Observer{
         this.free.add(new Millisecond(), y);
     }*/
 
+    //Adds elements to the grapsh that needs to be drawn.
+    //Checks a hashmap if the id of the message is present and should be drawn.
+    /*
+    TODO: remove all timeseries when simulation or stream reading has ben stopped/paused.
+    not doing this makes the graphpanel glitch.
+     */
     public void addObservation(Message message)
     {
         HashMap<Integer, String> toDrawGraphs = CanReader.toDrawGraphs;
@@ -157,6 +164,7 @@ public class GraphPanel extends JPanel implements Observer{
 //        }
     }
 
+    //another bytes to hexstring converter.
     final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
     private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];

@@ -66,7 +66,6 @@ public class CanReader implements Runnable{
     private JLabel RPMID3;
     private JLabel SpeedID2;
     private JLabel SpeedID3;
-    private JList ThrottleResults;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -180,7 +179,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //set the filter for incoming messages on the message board.
+        //set the filter for incoming messages on the message board. Can filter on multiple ID's
         setStreamIDButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -214,7 +213,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //open channel to car
+        //open and close channel to car
         openChannelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -241,7 +240,8 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //start stream
+        //start and stop printing and saving of the stream
+        //restart the stream will overwrite the current saved data.
         PlayStreamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -277,6 +277,7 @@ public class CanReader implements Runnable{
             }
         });
         //export all recorded messages to a file
+        //from the sesion between the last start and stop.
         saveFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -332,6 +333,8 @@ public class CanReader implements Runnable{
 
             }
         });
+        //start sending messages on the Can bus, currently only used to request obd data.
+        //possible addition could be message spoofing.
         startStopSpoofButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -362,6 +365,10 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //add which id and which byte should be drawn on the graph panel.
+        //currently only one set of byte(s) can be shown per id.
+        //possible improvement: multiple sets of bytes of a single id can be drawn.
+        //not possible now because of use of hashmap.
         SetGraphVar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -380,6 +387,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //remove the id from the hashmap. Stops drawing the graph.
         RemoveGraph.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -390,6 +398,9 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //start the test for throttle
+        //improvement: if button is pressed, data will start to be recorded and a test needs to be done.
+        //currently this is done manual be either first doing a measurement yourself or by loading in a test file.
         throttleTestButton.addActionListener(new ActionListener() {
             @Override
             //known obd codes: 11, 45, 47
@@ -423,6 +434,9 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //start the test for the RPM
+        //improvement: if button is pressed, data will start to be recorded and a test needs to be done.
+        //currently this is done manual be either first doing a measurement yourself or by loading in a test file.
         RPMTestButton.addActionListener(new ActionListener() {
             @Override
             //know obd code: 0C
@@ -456,6 +470,9 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        //start the test for the speed
+        //improvement: if button is pressed, data will start to be recorded and a test needs to be done.
+        //currently this is done manual be either first doing a measurement yourself or by loading in a test file.
         speedTestButton.addActionListener(new ActionListener() {
             @Override
             //know obd code: 0D
@@ -515,6 +532,7 @@ public class CanReader implements Runnable{
         messageHandler = new MessageHandler(false, this);
     }
 
+    //set the bitrate of the bus
     private int getBitrate()
     {
         int busRate = 0;
@@ -532,6 +550,7 @@ public class CanReader implements Runnable{
         return busRate;
     }
 
+    //save the messages acquired from the can-bus network
     public static void saveIncomingStream(Message message)
     {
         if(readBus) {
@@ -549,11 +568,13 @@ public class CanReader implements Runnable{
         }
     }
 
+    //get the last received message.
     public static Message getLatestMessage()
     {
         return importedMessages.get(importedMessages.size()-1);
     }
 
+    //custom definition of the graph panel
     private void createUIComponents() {
         graphPanel = new GraphPanel(30000);
     }

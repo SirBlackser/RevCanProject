@@ -44,7 +44,9 @@ public class Parser extends Observable implements Runnable {
         //log.append("setting pause: " + paused);
     }
 
-    //restart the iterator and start printing the list.
+    // Either prints the parsed lines from a loaded document, one line per milisecond.
+    // Or prints the last message received from the can-bus network.
+    // Possible improvement: print the messages from the document using the timestamps for a more realistic situation.
     @Override
     public synchronized void run() {
         Message checker = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
@@ -78,6 +80,7 @@ public class Parser extends Observable implements Runnable {
     //parse the given file.
     //expected example message: (1487076865.178310) can0 220#F10300000000D40F
     //                          timestamp           can  id#message
+    //parses the loaded file in an array of messages.
     public ArrayList<Message> parseDoc(File file)
     {
         importedMessages = new ArrayList<>();
@@ -109,6 +112,7 @@ public class Parser extends Observable implements Runnable {
         return b;
     }
 
+    //Parse the line for printing.
     private Message parseLine(String myLine)
     {
         //voorbeeld bericht: "(1487086751.815959) can0 153#200000FF00FF607E"

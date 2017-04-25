@@ -58,6 +58,8 @@ public class MessageHandler implements Runnable {
         return this.send;
     }
 
+    //set the message that needs to be send.
+    //only active function
     public void setMessage(int id, byte[] data) {
         msgId = id;
         msgData = data;
@@ -66,6 +68,7 @@ public class MessageHandler implements Runnable {
 
     //split on , for seperate bytes
     //split with "-" for range
+    //plan: would change those bytes using the increment, not implemented.
     public void setImportantBytes(String theBytes) {
         String[] split1 = theBytes.split(",");
         for(int i = 0; i < split1.length; i++)
@@ -84,6 +87,7 @@ public class MessageHandler implements Runnable {
         }
     }
 
+    //plans for message spoofing, could be used for a more powerfull tool.
     public void setIncrement(int increment, int upper, int lower, int speed)
     {
         this.increment = increment;
@@ -92,6 +96,8 @@ public class MessageHandler implements Runnable {
         incrementSpeed = speed;
     }
 
+    //function for sending the messages. Currently used for requesting obd data.
+    //Could be used for message spoofing, needs to be reworked for that first.
     @Override
     public synchronized void run() {
         while (active) {

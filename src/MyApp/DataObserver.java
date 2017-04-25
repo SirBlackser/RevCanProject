@@ -29,6 +29,8 @@ public class DataObserver implements Observer{
 
 
     //print the text to the texArea
+    // the Object is expected to be a message
+    //it will be parsed in the update function itself
     @Override
     public void update(Observable o, Object arg) {
         Message m = (Message) arg;

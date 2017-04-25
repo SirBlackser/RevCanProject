@@ -17,6 +17,8 @@ public class RMSCalculator {
 
     public RMSCalculator() { }
 
+    // Will compare the given obd data to all possible arrays.
+    // Returns the 3 best options.
     public ArrayList<ArrayList<Float>> calculateRMS(HashMap<Integer, ArrayList<Message>> sortedData, ArrayList<Message> importedMessages)
     {
         HashMap<Integer, ArrayList<Message>> data = new HashMap<>();
@@ -27,6 +29,7 @@ public class RMSCalculator {
         //long beginTime = 0;
         //long endTime = 0;
 
+        // Save all the messages from OBD (hex value (id) 7E8, int value 2024)
         ArrayList<Message> knowData = new ArrayList<>();
         if(data.containsKey(2024))
         {
@@ -44,6 +47,7 @@ public class RMSCalculator {
         int dataLength = Byte.toUnsignedInt(OBDdata[0])-2;
         Iterator<Integer> iterator = keys.iterator();
         float rms = 0;
+        // Iterate over all keys and all bytes in the messages.
         while(iterator.hasNext())
         {
             int key = iterator.next();
@@ -55,6 +59,7 @@ public class RMSCalculator {
             ArrayList<Message> obdData = new ArrayList<>();
             Message temp = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
             Message check = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
+            // Makes 2 arrays of the same length, with the timestamps as close as possible
             for(Message m: allMessages)
             {
                 if(m.id == 2024)
@@ -68,10 +73,12 @@ public class RMSCalculator {
             }
 
             //ArrayList<Message> messages = data.get(key);
+            //runs over all bytes.
             for(int i = 0; i < canData.get(0).data.length-dataLength; i++)
             {
                 int currentdifference = 0;
                 int sumOfarray = 0;
+                //runs over all messages.
                 for(int j = 0; j < canData.size(); j++)
                 {
                     if(dataLength == 1)
@@ -86,6 +93,7 @@ public class RMSCalculator {
                             bytesCan[k] = canData.get(j).data[i+k];
                             bytesOBD[k] = obdData.get(j).data[3+k];
                         }
+                        //conver bytes to int, Can messages work with little endian, OBD with big endian
                         ByteBuffer bufferCan = ByteBuffer.wrap(bytesCan);
                         ByteBuffer bufferOBD = ByteBuffer.wrap(bytesOBD);
                         bufferCan.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
@@ -97,6 +105,7 @@ public class RMSCalculator {
                     }
                 }
 
+                //add answer to answers array and sorts it.
                 if(answers.size() < 3 && sumOfarray != 0 ) {
                     ArrayList<Float> answer = new ArrayList<>();
                     rms = (currentdifference/canData.size());
@@ -126,6 +135,7 @@ public class RMSCalculator {
         return answers;
     }
 
+    //sorts the answer array from best match to least best match.
     private ArrayList<ArrayList<Float>> sort(ArrayList<ArrayList<Float>> answers)
     {
         ArrayList<ArrayList<Float>> sorted = new ArrayList<>();

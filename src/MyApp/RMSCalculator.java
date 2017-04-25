@@ -28,6 +28,7 @@ public class RMSCalculator {
         ArrayList<ArrayList<Float>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
+        int top = 5;
 
         // Save all the messages from OBD (hex value (id) 7E8, int value 2024)
         ArrayList<Message> knowData = new ArrayList<>();
@@ -106,7 +107,7 @@ public class RMSCalculator {
                 }
 
                 //add answer to answers array and sorts it.
-                if(answers.size() < 3 && sumOfarray != 0 ) {
+                if(answers.size() < top && sumOfarray != 0 ) {
                     ArrayList<Float> answer = new ArrayList<>();
                     rms = (currentdifference/canData.size());
                     answer.add(rms);
@@ -123,9 +124,9 @@ public class RMSCalculator {
                     answer.add((float)key);
                     answer.add((float)i);
                     answer.add((float)dataLength);
-                    if(rms < answers.get(2).get(0))
+                    if(rms < answers.get(top-1).get(0))
                     {
-                        answers.remove(2);
+                        answers.remove(top-1);
                         answers.add(answer);
                         answers = sort(answers);
                     }
@@ -139,7 +140,8 @@ public class RMSCalculator {
     private ArrayList<ArrayList<Float>> sort(ArrayList<ArrayList<Float>> answers)
     {
         ArrayList<ArrayList<Float>> sorted = new ArrayList<>();
-        if(answers.size() == 1)
+        int help = 0;
+        /*if(answers.size() == 1)
         {
             sorted = answers;
         }
@@ -164,6 +166,15 @@ public class RMSCalculator {
                 sorted.add(answers.get(1));
             } else {
                 sorted = answers;
+            }
+        }*/
+        for(int i=0; i < answers.size(); i++)
+        {
+            if(answers.get(i).get(0) > answers.get(answers.size()-1).get(0) && help == 0) {
+                sorted.add(answers.get(answers.size() - 1));
+                help = 1;
+            } else {
+                sorted.add(answers.get(i-help));
             }
         }
         return sorted;

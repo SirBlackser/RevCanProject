@@ -66,6 +66,10 @@ public class CanReader implements Runnable{
     private JLabel RPMID3;
     private JLabel SpeedID2;
     private JLabel SpeedID3;
+    private JComboBox IDCheck;
+    private JLabel IdText;
+    private JLabel ThrottleID4;
+    private JLabel ThrottleID5;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -264,6 +268,7 @@ public class CanReader implements Runnable{
                     thandler.start();
                     log.append("start reading stream\n");
                 } else {
+                    toDrawGraphs.clear();
                     messageHandler.setActive(false);
                     PlayStreamButton.setText("Play");
                     /*try {
@@ -409,100 +414,37 @@ public class CanReader implements Runnable{
                 {
                     String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
                     String checker = String.format("%2s", temp).replace(' ', '0');
-                    checker.toUpperCase();
-                    if(checker.equals("11") || checker.equals("45") || checker.equals("47")) {
+                    //checker.toUpperCase();
+                    String ID = IDCheck.getSelectedItem().toString();
+                    String[] sub = ID.split("-");
+                    if(checker.equals(sub[0].toLowerCase())) {
                         ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        IdText.setText(sub[1]);
                         if (answers.get(0).get(3) == 1) {
                             ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
                             ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
                             ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
+                            ThrottleID4.setText("Deviation: " + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " byte: " + answers.get(3).get(2));
+                            ThrottleID5.setText("Deviation: " + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " byte: " + answers.get(4).get(2));
                         } else {
                             float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
                             float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
                             float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
+                            float temp4 = answers.get(3).get(2) + (answers.get(3).get(3) - 1);
+                            float temp5 = answers.get(4).get(2) + (answers.get(4).get(3) - 1);
                             //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
                             ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
                             ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
                             ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
+                            ThrottleID4.setText("Deviation: " + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " bytes: " + answers.get(3).get(2) + "-" + temp4);
+                            ThrottleID5.setText("Deviation: " + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " bytes: " + answers.get(4).get(2) + "-" + temp5);
                         }
                         ThrottleFound = true;
                     } else if(ThrottleFound == false){
-                        ThrottleID1.setText("right obd code not present (throttle: 11 or 45 or 47)");
+                        ThrottleID1.setText("right obd code not present: " + sub[0]);
                     }
                 } else if(ThrottleFound == false){
                     ThrottleID1.setText("no obd messages pressent");
-                }
-            }
-        });
-        //start the test for the RPM
-        //improvement: if button is pressed, data will start to be recorded and a test needs to be done.
-        //currently this is done manual be either first doing a measurement yourself or by loading in a test file.
-        RPMTestButton.addActionListener(new ActionListener() {
-            @Override
-            //know obd code: 0C
-            public void actionPerformed(ActionEvent e) {
-                if(sortedData.containsKey(2024))
-                {
-                    String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
-                    String checker = String.format("%2s", temp).replace(' ', '0');
-                    checker.toUpperCase();
-                    if(checker.equals("0c")) {
-                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                        if (answers.get(0).get(3) == 1) {
-                            RPMID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
-                            RPMID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
-                            RPMID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
-                        } else {
-                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
-                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
-                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
-                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
-                            RPMID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
-                            RPMID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
-                            RPMID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
-                        }
-                        rpmFound = true;
-                    } else if(rpmFound == false){
-                        RPMID1.setText("right obd code not present (engine rpm: 0C)");
-                    }
-                } else if(rpmFound == false) {
-                    RPMID1.setText("no obd messages pressent");
-                }
-            }
-        });
-        //start the test for the speed
-        //improvement: if button is pressed, data will start to be recorded and a test needs to be done.
-        //currently this is done manual be either first doing a measurement yourself or by loading in a test file.
-        speedTestButton.addActionListener(new ActionListener() {
-            @Override
-            //know obd code: 0D
-            public void actionPerformed(ActionEvent e) {
-                if(sortedData.containsKey(2024))
-                {
-                    String temp = Integer.toHexString(Byte.toUnsignedInt(sortedData.get(2024).get(0).data[2]));
-                    String checker = String.format("%2s", temp).replace(' ', '0');
-                    checker.toUpperCase();
-                    if(checker.equals("0d")) {
-                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
-                        if (answers.get(0).get(3) == 1) {
-                            SpeedID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
-                            SpeedID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
-                            SpeedID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
-                        } else {
-                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
-                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
-                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
-                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
-                            SpeedID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
-                            SpeedID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
-                            SpeedID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
-                        }
-                        speedFound = true;
-                    } else if(speedFound == false) {
-                        SpeedID1.setText("right obd code not present (vehicle speed: 0D)");
-                    }
-                } else if(speedFound == false) {
-                    SpeedID1.setText("no obd messages present");
                 }
             }
         });

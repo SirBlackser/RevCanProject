@@ -93,6 +93,7 @@ public class CanReader implements Runnable{
     private boolean rpmFound = false;
     private boolean speedFound = false;
     private static GrangerPrep grangerPrep;
+    private static long time;
 
     public static void main(String[] args)
     {
@@ -227,6 +228,7 @@ public class CanReader implements Runnable{
                 try{
                     handle = new Handle(channel);
                     if(readBus) {
+                        time = System.currentTimeMillis();
                         handle.setBusParams(getBitrate(), 0, 0, 0, 0, 0);
                         handle.busOn();
                         log.append("channel opened\n");
@@ -319,12 +321,13 @@ public class CanReader implements Runnable{
                     for(Message m: importedMessages) {
                         String idString = String.format("%3s", Integer.toHexString(m.id)).replace(' ', '0');
                         String hexData = bytesToHex(m.data);
-                        String theTime = Long.toString(m.time);
+                        Long actualTime = time + m.time;
+                        String theTime = Long.toString(actualTime);
                         if(theTime.length()<9)
                         {
                             theTime = String.format("%9s", theTime).replace(' ', '0');
                         }
-                        String time = theTime.substring(0,theTime.length()-6) + "." + theTime.substring(theTime.length()-6);
+                        String time = theTime.substring(0,10) + "." + theTime.substring(10);
                         String str;
                         try {
                             str = "(" + time + ") can" + channel + " " + idString.toUpperCase() + "#" + hexData + "\n";

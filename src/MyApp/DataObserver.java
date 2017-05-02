@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.security.Timestamp;
 import java.util.*;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
@@ -43,12 +44,14 @@ public class DataObserver implements Observer{
             }
             idString = idString.toUpperCase();
             String hexData = bytesToHex(m.data);
+            Long currentTime= System.currentTimeMillis();
             String theTime = Long.toString(m.time);
-            if (theTime.length() < 9) {
-                theTime = String.format("%9s", theTime).replace(' ', '0');
+            if (theTime.length() < 13) {
+                //theTime = String.format("%13s", theTime).replace(' ', '0');
+                theTime = Long.toString(currentTime+m.time);
             }
-            String time = theTime.substring(0, theTime.length() - 3) + "." + theTime.substring(theTime.length() - 3);
-
+            String time = theTime.substring(0, 10) + "." + theTime.substring(10);
+            //String time = theTime;
             //String hexData = bytesToHex(m.data);
             if (!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)) {
                 System.out.printf("%s    %s\t%d  %s\n",

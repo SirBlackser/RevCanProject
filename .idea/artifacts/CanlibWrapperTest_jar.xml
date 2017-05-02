@@ -12,6 +12,7 @@
       <element id="library" level="module" name="canlib.jar" module-name="CanlibWrapperTest" />
       <element id="library" level="project" name="canlib" />
       <element id="library" level="project" name="jfreechart-1.0.19" />
+      <element id="file-copy" path="C:/Program Files (x86)/Kvaser/Canlib/bin_x64/canlib32.dll" />
     </root>
   </artifact>
 </component>

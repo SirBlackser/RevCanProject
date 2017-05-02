@@ -92,7 +92,7 @@ public class CanReader implements Runnable{
     private static RMSCalculator rmsCalculator;
     private boolean rpmFound = false;
     private boolean speedFound = false;
-    private boolean ThrottleFound = false;
+    private static GrangerPrep grangerPrep;
 
     public static void main(String[] args)
     {
@@ -109,6 +109,7 @@ public class CanReader implements Runnable{
         toDrawGraphs = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
+        grangerPrep = new GrangerPrep();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -140,6 +141,7 @@ public class CanReader implements Runnable{
                         log.append("start streaming\n");
                     } else {
                         parser.setPause(true);
+                        toDrawGraphs.clear();
                         log.append("stop streaming\n");
                     }
                     //JOptionPane.showMessageDialog(null,"hello");
@@ -417,15 +419,23 @@ public class CanReader implements Runnable{
                     //checker.toUpperCase();
                     String ID = IDCheck.getSelectedItem().toString();
                     String[] sub = ID.split("-");
+                    ArrayList<ArrayList<Float>> answers = new ArrayList<>();
+                    String DevOrP;
                     if(checker.equals(sub[0].toLowerCase())) {
-                        ArrayList<ArrayList<Float>> answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                        if(comboBox3.getSelectedItem().toString().equals("Root Mean Square")) {
+                            answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
+                            DevOrP = "Deviation: ";
+                        } else {
+                            answers = grangerPrep.grangerTester(sortedData,importedMessages);
+                            DevOrP = "P value: ";
+                        }
                         IdText.setText(sub[1]);
                         if (answers.get(0).get(3) == 1) {
-                            ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
-                            ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
-                            ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
-                            ThrottleID4.setText("Deviation: " + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " byte: " + answers.get(3).get(2));
-                            ThrottleID5.setText("Deviation: " + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " byte: " + answers.get(4).get(2));
+                            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
+                            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
+                            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
+                            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " byte: " + answers.get(3).get(2));
+                            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " byte: " + answers.get(4).get(2));
                         } else {
                             float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
                             float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
@@ -433,17 +443,16 @@ public class CanReader implements Runnable{
                             float temp4 = answers.get(3).get(2) + (answers.get(3).get(3) - 1);
                             float temp5 = answers.get(4).get(2) + (answers.get(4).get(3) - 1);
                             //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
-                            ThrottleID1.setText("Deviation: " + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
-                            ThrottleID2.setText("Deviation: " + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
-                            ThrottleID3.setText("Deviation: " + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
-                            ThrottleID4.setText("Deviation: " + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " bytes: " + answers.get(3).get(2) + "-" + temp4);
-                            ThrottleID5.setText("Deviation: " + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " bytes: " + answers.get(4).get(2) + "-" + temp5);
+                            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
+                            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
+                            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
+                            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " bytes: " + answers.get(3).get(2) + "-" + temp4);
+                            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " bytes: " + answers.get(4).get(2) + "-" + temp5);
                         }
-                        ThrottleFound = true;
-                    } else if(ThrottleFound == false){
+                    } else{
                         ThrottleID1.setText("right obd code not present: " + sub[0]);
                     }
-                } else if(ThrottleFound == false){
+                } else{
                     ThrottleID1.setText("no obd messages pressent");
                 }
             }

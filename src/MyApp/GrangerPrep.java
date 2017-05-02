@@ -2,7 +2,6 @@ package MyApp;
 
 import obj.Message;
 
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -11,23 +10,21 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by dries on 21/04/2017.
+ * Created by dries on 1/05/2017.
  */
-public class RMSCalculator {
+public class GrangerPrep {
 
-    public RMSCalculator() { }
+    GrangerTest grangerTest;
+    public GrangerPrep() {
+        grangerTest = new GrangerTest();
+    }
 
-    // Will compare the given obd data to all possible arrays.
-    // Returns the 3 best options.
-    public ArrayList<ArrayList<Float>> calculateRMS(HashMap<Integer, ArrayList<Message>> sortedData, ArrayList<Message> importedMessages)
+    public ArrayList<ArrayList<Float>> grangerTester(HashMap<Integer, ArrayList<Message>> sortedData, ArrayList<Message> importedMessages)
     {
         HashMap<Integer, ArrayList<Message>> data = new HashMap<>();
         data = sortedData;
         ArrayList<Message> allMessages = importedMessages;
-        //ArrayList<Float> answer = new ArrayList<>();
         ArrayList<ArrayList<Float>> answers = new ArrayList<>();
-        //long beginTime = 0;
-        //long endTime = 0;
         int top = 5;
 
         // Save all the messages from OBD (hex value (id) 7E8, int value 2024)
@@ -49,11 +46,9 @@ public class RMSCalculator {
         Iterator<Integer> iterator = keys.iterator();
         float rms = 0;
         // Iterate over all keys and all bytes in the messages.
-        while(iterator.hasNext())
-        {
+        while(iterator.hasNext()) {
             int key = iterator.next();
-            if(key == 2024)
-            {
+            if (key == 2024) {
                 key = iterator.next();
             }
             ArrayList<Message> canData = new ArrayList<>();
@@ -61,12 +56,10 @@ public class RMSCalculator {
             Message temp = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
             Message check = new Message(0, new byte[]{0x0, 0x0, 0x0}, 3, 0, 0);
             // Makes 2 arrays of the same length, with the timestamps as close as possible
-            for(Message m: allMessages)
-            {
-                if(m.id == 2024)
-                {
+            for (Message m : allMessages) {
+                if (m.id == 2024) {
                     temp = m;
-                } else if(m.id == key && temp.id != 0 && check != temp) {
+                } else if (m.id == key && temp.id != 0 && check != temp) {
                     canData.add(m);
                     obdData.add(temp);
                     check = temp;
@@ -79,12 +72,16 @@ public class RMSCalculator {
             {
                 int currentdifference = 0;
                 int sumOfarray = 0;
+                double[] y = new double[canData.size()];
+                double[] x = new double[canData.size()];
                 //runs over all messages.
                 for(int j = 0; j < canData.size(); j++)
                 {
                     if(dataLength == 1)
                     {
-                        currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[i]))-Byte.toUnsignedInt(obdData.get(j).data[3])),2);
+                        //currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[i]))-Byte.toUnsignedInt(obdData.get(j).data[3])),2);
+                        y[j] = (double)Byte.toUnsignedInt(canData.get(j).data[i]);
+                        x[j] = (double)Byte.toUnsignedInt(obdData.get(j).data[3]);
                         sumOfarray += Byte.toUnsignedInt(canData.get(j).data[i]);
                     } else {
                         byte bytesCan[] = new byte[dataLength];
@@ -101,16 +98,20 @@ public class RMSCalculator {
                         //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                         int tempCan = bufferCan.getShort();
                         int tempObd = bufferOBD.getShort();
-                        currentdifference += Math.pow((double)(tempCan- tempObd),2);
+                        y[j] = (double)tempCan;
+                        x[j] = (double) tempObd;
+                        //currentdifference += Math.pow((double)(tempCan- tempObd),2);
                         sumOfarray += tempCan;
                     }
                 }
 
+                GrangerTestResult testResult = grangerTest.granger(y,x,1);
+
                 //add answer to answers array and sorts it.
                 if(answers.size() < top && sumOfarray != 0 ) {
                     ArrayList<Float> answer = new ArrayList<>();
-                    rms = (currentdifference/canData.size());
-                    answer.add(rms);
+                    //rms = (currentdifference/canData.size());
+                    answer.add((float)testResult.getPValue());
                     answer.add((float)key);
                     answer.add((float)i);
                     answer.add((float)dataLength);
@@ -119,12 +120,12 @@ public class RMSCalculator {
                 } else if(sumOfarray != 0){
                     ArrayList<Float> answer = new ArrayList<>();
                     answer.clear();
-                    rms = (currentdifference/canData.size());
-                    answer.add(rms);
+                    //rms = (currentdifference/canData.size());
+                    answer.add((float)testResult.getPValue());
                     answer.add((float)key);
                     answer.add((float)i);
                     answer.add((float)dataLength);
-                    if(rms < answers.get(top-1).get(0))
+                    if((float)testResult.getPValue() > answers.get(top-1).get(0))
                     {
                         answers.remove(top-1);
                         answers.add(answer);
@@ -143,7 +144,7 @@ public class RMSCalculator {
         int help = 0;
         for(int i=0; i < answers.size(); i++)
         {
-            if(answers.get(i).get(0) > answers.get(answers.size()-1).get(0) && help == 0) {
+            if(answers.get(i).get(0) < answers.get(answers.size()-1).get(0) && help == 0) {
                 sorted.add(answers.get(answers.size() - 1));
                 help = 1;
             } else {

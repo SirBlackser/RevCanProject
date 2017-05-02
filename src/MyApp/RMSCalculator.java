@@ -87,8 +87,8 @@ public class RMSCalculator {
                         currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[i]))-Byte.toUnsignedInt(obdData.get(j).data[3])),2);
                         sumOfarray += Byte.toUnsignedInt(canData.get(j).data[i]);
                     } else {
-                        byte bytesCan[] = new byte[dataLength];
-                        byte bytesOBD[] = new byte[dataLength];
+                        byte bytesCan[] = new byte[4];
+                        byte bytesOBD[] = new byte[4];
                         for(int k = 0; k < dataLength; k++)
                         {
                             bytesCan[k] = canData.get(j).data[i+k];
@@ -99,8 +99,8 @@ public class RMSCalculator {
                         ByteBuffer bufferOBD = ByteBuffer.wrap(bytesOBD);
                         bufferCan.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                         //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
-                        int tempCan = bufferCan.getShort();
-                        int tempObd = bufferOBD.getShort();
+                        int tempCan = bufferCan.getInt();
+                        int tempObd = bufferOBD.getInt();
                         currentdifference += Math.pow((double)(tempCan- tempObd),2);
                         sumOfarray += tempCan;
                     }

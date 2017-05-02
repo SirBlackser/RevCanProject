@@ -135,7 +135,7 @@ public class GraphPanel extends JPanel implements Observer{
                 //String dataString = bytesToHex(messageData);
                 //String dataDraw = dataString.substring(BytesToDraw.get(0), BytesToDraw.get(1));
                 //data = Integer.parseInt(dataDraw,16);
-                byte bytes[] = new byte[BytesToDraw.get(1)-BytesToDraw.get(0)+1];
+                byte bytes[] = new byte[4];
                 for (int i = BytesToDraw.get(0); i <= BytesToDraw.get(1); i++)
                 {
                     bytes[i-BytesToDraw.get(0)] = messageData[i];
@@ -144,7 +144,7 @@ public class GraphPanel extends JPanel implements Observer{
                 if(message.id != 2024) {
                     buffer.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                 }
-                data = buffer.getShort();
+                data = buffer.getInt();
             }
             currentGraphs.get(message.id).addOrUpdate(new Millisecond(), data);
         }

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.security.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
@@ -51,6 +53,10 @@ public class DataObserver implements Observer{
                 theTime = Long.toString(currentTime+m.time);
             }
             String time = theTime.substring(0, 10) + "." + theTime.substring(10);
+
+            /*Date date = new Date(System.currentTimeMillis());
+            DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
+            String dateFormatted = formatter.format(date);*/
             //String time = theTime;
             //String hexData = bytesToHex(m.data);
             if (!CanReader.filterIds.contains(-1) && CanReader.filterIds.contains(m.id)) {

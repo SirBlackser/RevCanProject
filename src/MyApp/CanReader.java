@@ -92,7 +92,7 @@ public class CanReader implements Runnable{
     private static RMSCalculator rmsCalculator;
     private boolean rpmFound = false;
     private boolean speedFound = false;
-    private static GrangerPrep grangerPrep;
+    //private static GrangerPrep grangerPrep;
     private static long time;
 
     public static void main(String[] args)
@@ -110,7 +110,7 @@ public class CanReader implements Runnable{
         toDrawGraphs = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
-        grangerPrep = new GrangerPrep();
+        //grangerPrep = new GrangerPrep();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -429,7 +429,7 @@ public class CanReader implements Runnable{
                             answers = rmsCalculator.calculateRMS(sortedData, importedMessages);
                             DevOrP = "Deviation: ";
                         } else {
-                            answers = grangerPrep.grangerTester(sortedData,importedMessages);
+                            //answers = grangerPrep.grangerTester(sortedData,importedMessages);
                             DevOrP = "P value: ";
                         }
                         IdText.setText(sub[1]);

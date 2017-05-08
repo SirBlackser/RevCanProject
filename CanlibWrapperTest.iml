@@ -37,5 +37,6 @@
     <orderEntry type="library" name="canlib" level="project" />
     <orderEntry type="library" name="jna-4.3.0" level="project" />
     <orderEntry type="library" name="jfreechart-1.0.19" level="project" />
+    <orderEntry type="library" name="commons-math-2.2" level="project" />
   </component>
 </module>

@@ -70,6 +70,10 @@ public class CanReader implements Runnable{
     private JLabel IdText;
     private JLabel ThrottleID4;
     private JLabel ThrottleID5;
+    private JFormattedTextField KmStand;
+    private JButton CalcKmButton;
+    private JLabel IDkm;
+    private JButton setEndianButton;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -87,6 +91,7 @@ public class CanReader implements Runnable{
     public static ArrayList<Message> importedMessages;
     private static int returnVal;
     public static HashMap<Integer, String> toDrawGraphs;
+    public static HashMap<Integer, String> toDrawGraphsBackUp;
     private static HashMap<Integer, ArrayList<Message>> sortedData;
     private static ArrayList<Integer> foundIDS;
     private static RMSCalculator rmsCalculator;
@@ -94,20 +99,25 @@ public class CanReader implements Runnable{
     private boolean speedFound = false;
     //private static GrangerPrep grangerPrep;
     private static long time;
+    private static KmCalc kmCalc;
+    private static String endian;
 
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("CanApp");
         CanReader canReader = new CanReader();
         rmsCalculator = new RMSCalculator();
+        kmCalc = new KmCalc();
         channel = 0;
         bitRate = "500K";
+        endian = "little";
         readBus = false;
         importedMessages = new ArrayList<>();
         dataSorter = new DataSorter();
         filterIds = new ArrayList<>();
         filterIds.add(-1);
         toDrawGraphs = new HashMap<>();
+        toDrawGraphsBackUp = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
         //grangerPrep = new GrangerPrep();
@@ -138,11 +148,17 @@ public class CanReader implements Runnable{
                     parser.setSimulation(true);
                     if (parser.getPaused()) {
                         parser.setPause(false);
+                        if(!toDrawGraphsBackUp.isEmpty()) {
+                            toDrawGraphs = toDrawGraphsBackUp;
+                        }
                         parser.resetI();
                         log.append("start streaming\n");
                     } else {
                         parser.setPause(true);
-                        toDrawGraphs.clear();
+                        if(!toDrawGraphs.isEmpty()) {
+                            toDrawGraphsBackUp = toDrawGraphs;
+                            toDrawGraphs.clear();
+                        }
                         log.append("stop streaming\n");
                     }
                     //JOptionPane.showMessageDialog(null,"hello");
@@ -271,6 +287,9 @@ public class CanReader implements Runnable{
                     thandler = new Thread(messageHandler);
                     thandler.start();
                     log.append("start reading stream\n");
+                    if(!toDrawGraphsBackUp.isEmpty()) {
+                        toDrawGraphs = toDrawGraphsBackUp;
+                    }
                 } else {
                     toDrawGraphs.clear();
                     messageHandler.setActive(false);
@@ -282,6 +301,10 @@ public class CanReader implements Runnable{
                     }*/
                     parser.setPause(true);
                     log.append("stop reading stream\n");
+                    if(!toDrawGraphs.isEmpty()) {
+                        toDrawGraphsBackUp = toDrawGraphs;
+                        toDrawGraphs.clear();
+                    }
                 }
             }
         });
@@ -356,6 +379,7 @@ public class CanReader implements Runnable{
                         messageHandler.setMessage(Integer.parseInt(textField3.getText(),16), parser.hexStringToByteArray(textField4.getText()));
                     }
                     log.append("start sending messages\n");
+                    startStopSpoofButton.setText("stop");
 
                     // textField6 -> increment
                     // textField7 -> upper limit
@@ -372,6 +396,7 @@ public class CanReader implements Runnable{
                 } else {
                     messageHandler.setSend(false);
                     log.append("stop sending messages\n");
+                    startStopSpoofButton.setText("start");
                 }
             }
         });
@@ -460,6 +485,35 @@ public class CanReader implements Runnable{
                 }
             }
         });
+        CalcKmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //times 10, because odometers works in 0.1 km increments
+                int kilometers = Integer.parseInt(KmStand.getText())*10;
+                ArrayList<Integer> answer = kmCalc.calculateKm(sortedData,kilometers);
+                if(answer.get(3) == 1)
+                {
+                    IDkm.setText("deviation: " + answer.get(0) + " at ID " + Integer.toHexString(answer.get(1)) + " byte: " + answer.get(2));
+                } else {
+                    int temp = answer.get(2) + answer.get(3) -1;
+                    IDkm.setText("deviation: " + answer.get(0) + " at ID " + Integer.toHexString(answer.get(1)) + " bytes: " + answer.get(2) + "-" + temp);
+                }
+            }
+        });
+
+        setEndianButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(endian.equals("little"))
+                {
+                    endian = "big";
+                    setEndianButton.setText("Set to Little endian");
+                } else {
+                    endian = "little";
+                    setEndianButton.setText("Set to Big endian");
+                }
+            }
+        });
     }
 
     final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -472,6 +526,8 @@ public class CanReader implements Runnable{
         }
         return new String(hexChars);
     }
+
+    public static String getEndian(){return  endian;}
 
     //run thread for printing the messages.
     @Override

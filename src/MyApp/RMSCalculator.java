@@ -97,7 +97,9 @@ public class RMSCalculator {
                         //conver bytes to int, Can messages work with little endian, OBD with big endian
                         ByteBuffer bufferCan = ByteBuffer.wrap(bytesCan);
                         ByteBuffer bufferOBD = ByteBuffer.wrap(bytesOBD);
-                        bufferCan.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
+                        if(CanReader.getEndian().equals("little")) {
+                            bufferCan.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
+                        }
                         //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                         int tempCan = bufferCan.getInt();
                         int tempObd = bufferOBD.getInt();

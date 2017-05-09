@@ -6,9 +6,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.security.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;

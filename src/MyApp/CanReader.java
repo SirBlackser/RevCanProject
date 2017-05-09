@@ -74,6 +74,7 @@ public class CanReader implements Runnable{
     private JButton CalcKmButton;
     private JLabel IDkm;
     private JButton setEndianButton;
+    private JButton ImportVbox;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -101,6 +102,7 @@ public class CanReader implements Runnable{
     private static long time;
     private static KmCalc kmCalc;
     private static String endian;
+    private static ArrayList<SimulationPoint> simulationResults;
 
     public static void main(String[] args)
     {
@@ -120,6 +122,7 @@ public class CanReader implements Runnable{
         toDrawGraphsBackUp = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
+        simulationResults = new ArrayList<>();
         //grangerPrep = new GrangerPrep();
         frame.setContentPane(canReader.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -187,7 +190,6 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 returnVal = fc.showOpenDialog(importFileButton.getParent());
-
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     file = fc.getSelectedFile();
                     //This is where a real application would open the file.
@@ -500,7 +502,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
-
+        //set little or big endian
         setEndianButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -511,6 +513,25 @@ public class CanReader implements Runnable{
                 } else {
                     endian = "little";
                     setEndianButton.setText("Set to Big endian");
+                }
+            }
+        });
+        //import vbox file
+        ImportVbox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                returnVal = fc.showOpenDialog(importFileButton.getParent());
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    file = fc.getSelectedFile();
+                    //This is where a real application would open the file.
+                    log.append("Opening: " + file.getName() + "\n");
+                    //importedMessages = parser.parseDoc(file);
+                    //sortedData = dataSorter.SortParsedData(importedMessages);
+                    //log.append("done Parsing\n");
+                    String path= file.getAbsolutePath();
+                    formattedTextField1.setText(path);
+                } else {
+                    log.append("Open command cancelled by user.\n");
                 }
             }
         });

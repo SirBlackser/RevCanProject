@@ -37,8 +37,6 @@ public class RMSCalculator {
             knowData = data.get(2024);
             //beginTime = knowData.get(0).time;
             //endTime = knowData.get(knowData.size()-1).time;
-        } else {
-            return null;
         }
 
         Set<Integer> keys = data.keySet();

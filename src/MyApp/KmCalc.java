@@ -26,8 +26,10 @@ public class KmCalc
         {
             int key = iterator.next();
             Message message = data.get(key).get(0);
+            //runs over differents byte lengths
             for(int byteLength = 1; byteLength<5; byteLength++)
             {
+                //runs over all bytes
                 for(int currentByte = 0; currentByte<message.data.length-(byteLength-1); currentByte++)
                 {
                     double difference = -1;

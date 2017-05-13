@@ -5,6 +5,13 @@ package MyApp;
  */
 public class SimulationPoint
 {
+    public SimulationPoint(long timeStamp, int dataPoint)
+    {
+        this.timeStamp = timeStamp;
+        this.dataPoint = dataPoint;
+    }
+
+    //in miliseconds
     public Long timeStamp;
 
     public Long getTimeStamp() {

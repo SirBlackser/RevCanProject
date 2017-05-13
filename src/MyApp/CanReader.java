@@ -75,6 +75,9 @@ public class CanReader implements Runnable{
     private JLabel IDkm;
     private JButton setEndianButton;
     private JButton ImportVbox;
+    private JFormattedTextField simPath;
+    private JFormattedTextField VboxTime;
+    private JButton runSimTestButton;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -103,6 +106,8 @@ public class CanReader implements Runnable{
     private static KmCalc kmCalc;
     private static String endian;
     private static ArrayList<SimulationPoint> simulationResults;
+    private static SimParser simParser;
+    private static SimulationCalc simulationCalc;
 
     public static void main(String[] args)
     {
@@ -115,10 +120,12 @@ public class CanReader implements Runnable{
         endian = "little";
         readBus = false;
         importedMessages = new ArrayList<>();
+        simParser = new SimParser();
         dataSorter = new DataSorter();
         filterIds = new ArrayList<>();
         filterIds.add(-1);
         toDrawGraphs = new HashMap<>();
+        simulationCalc = new SimulationCalc();
         toDrawGraphsBackUp = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
@@ -460,25 +467,7 @@ public class CanReader implements Runnable{
                             DevOrP = "P value: ";
                         }
                         IdText.setText(sub[1]);
-                        if (answers.get(0).get(3) == 1) {
-                            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
-                            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
-                            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
-                            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " byte: " + answers.get(3).get(2));
-                            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " byte: " + answers.get(4).get(2));
-                        } else {
-                            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
-                            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
-                            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
-                            float temp4 = answers.get(3).get(2) + (answers.get(3).get(3) - 1);
-                            float temp5 = answers.get(4).get(2) + (answers.get(4).get(3) - 1);
-                            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
-                            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
-                            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
-                            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
-                            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " bytes: " + answers.get(3).get(2) + "-" + temp4);
-                            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " bytes: " + answers.get(4).get(2) + "-" + temp5);
-                        }
+                        FillResult(answers, DevOrP);
                     } else{
                         ThrottleID1.setText("right obd code not present: " + sub[0]);
                     }
@@ -516,7 +505,7 @@ public class CanReader implements Runnable{
                 }
             }
         });
-        //import vbox file
+        //import simulation file
         ImportVbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -529,10 +518,26 @@ public class CanReader implements Runnable{
                     //sortedData = dataSorter.SortParsedData(importedMessages);
                     //log.append("done Parsing\n");
                     String path= file.getAbsolutePath();
-                    formattedTextField1.setText(path);
+                    simPath.setText(path);
+                    String vboxTime = VboxTime.getText();
+                    int location = vboxTime.indexOf(".")+1;
+                    if(vboxTime.length()-location > 3)
+                    {
+                        vboxTime = vboxTime.substring(0, location+3);
+                    }
+                    vboxTime = vboxTime.replace(".","");
+                    Long offsetTime = Long.parseLong(vboxTime);
+                    simulationResults = simParser.parseSimDoc(file, offsetTime);
                 } else {
                     log.append("Open command cancelled by user.\n");
                 }
+            }
+        });
+        runSimTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
+                FillResult(answers, "Deviation: ");
             }
         });
     }
@@ -608,5 +613,28 @@ public class CanReader implements Runnable{
     //custom definition of the graph panel
     private void createUIComponents() {
         graphPanel = new GraphPanel(30000);
+    }
+
+    private void FillResult(ArrayList<ArrayList<Float>> answers, String DevOrP)
+    {
+        if (answers.get(0).get(3) == 1) {
+            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " byte: " + answers.get(0).get(2));
+            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " byte: " + answers.get(1).get(2));
+            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " byte: " + answers.get(2).get(2));
+            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " byte: " + answers.get(3).get(2));
+            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " byte: " + answers.get(4).get(2));
+        } else {
+            float temp1 = answers.get(0).get(2) + (answers.get(0).get(3) - 1);
+            float temp2 = answers.get(1).get(2) + (answers.get(1).get(3) - 1);
+            float temp3 = answers.get(2).get(2) + (answers.get(2).get(3) - 1);
+            float temp4 = answers.get(3).get(2) + (answers.get(3).get(3) - 1);
+            float temp5 = answers.get(4).get(2) + (answers.get(4).get(3) - 1);
+            //ThrottleID1.setText("ID: " + Integer.toHexString(answer.get(0)) + " byte(s): " + answer.get(1) + "-" + temp);
+            ThrottleID1.setText(DevOrP + answers.get(0).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(0).get(1))) + " bytes: " + answers.get(0).get(2) + "-" + temp1);
+            ThrottleID2.setText(DevOrP + answers.get(1).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(1).get(1))) + " bytes: " + answers.get(1).get(2) + "-" + temp2);
+            ThrottleID3.setText(DevOrP + answers.get(2).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(2).get(1))) + " bytes: " + answers.get(2).get(2) + "-" + temp3);
+            ThrottleID4.setText(DevOrP + answers.get(3).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(3).get(1))) + " bytes: " + answers.get(3).get(2) + "-" + temp4);
+            ThrottleID5.setText(DevOrP + answers.get(4).get(0) + " at ID: " + Integer.toHexString(Math.round(answers.get(4).get(1))) + " bytes: " + answers.get(4).get(2) + "-" + temp5);
+        }
     }
 }

@@ -130,6 +130,11 @@ public class Parser extends Observable implements Runnable {
         //split1[0] = split1[0].replace("\\(", "");
         //split1[0] = split1[0].replace("\\)", "");
         split1[0] = s.toString();
+        int location = split1[0].indexOf(".")+1;
+        if(split1[0].length()-location > 3)
+        {
+            split1[0] = split1[0].substring(0,location+3);
+        }
         split1[0] = split1[0].replace(".", "");
         //split1[0] = split1[0].replace(".", ",");
 

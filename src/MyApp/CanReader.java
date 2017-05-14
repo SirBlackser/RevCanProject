@@ -536,8 +536,12 @@ public class CanReader implements Runnable{
         runSimTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
-                FillResult(answers, "Deviation: ");
+                if(!simulationResults.isEmpty()) {
+                    ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
+                    FillResult(answers, "Deviation: ");
+                } else {
+                    log.append("no simulations results found.");
+                }
             }
         });
     }

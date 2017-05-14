@@ -75,7 +75,7 @@ public class RMSCalculator {
             //runs over all bytes.
             for(int i = 0; i < canData.get(0).data.length-dataLength; i++)
             {
-                int currentdifference = 0;
+                long currentdifference = 0;
                 int sumOfarray = 0;
                 //runs over all messages.
                 for(int j = 0; j < canData.size(); j++)
@@ -90,7 +90,7 @@ public class RMSCalculator {
                         for(int k = 0; k < dataLength; k++)
                         {
                             bytesCan[k] = canData.get(j).data[i+k];
-                            bytesOBD[k] = obdData.get(j).data[3+k];
+                            bytesOBD[3-(dataLength-(k+1))] = obdData.get(j).data[3+k];
                         }
                         //conver bytes to int, Can messages work with little endian, OBD with big endian
                         ByteBuffer bufferCan = ByteBuffer.wrap(bytesCan);

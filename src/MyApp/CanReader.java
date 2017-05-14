@@ -624,7 +624,7 @@ public class CanReader implements Runnable{
         ArrayList<String> results = new ArrayList<>();
         for(ArrayList<Float> answer: answers)
         {
-            String temp = DevOrP;
+            String temp = "Deviation per Byte: ";
             if(answer.get(3) == 1)
             {
                 temp += answer.get(0) + " at ID: " + Integer.toHexString(Math.round(answer.get(1))) + " byte: " + answer.get(2);

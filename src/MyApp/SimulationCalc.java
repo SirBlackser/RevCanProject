@@ -69,8 +69,8 @@ public class SimulationCalc {
             {
                 for(int currentByte = 0; currentByte < canData.get(0).data.length-(byteLength-1); currentByte++)
                 {
-                    int currentdifference = 0;
-                    int sumOfarray = 0;
+                    float currentDifference = 0;
+                    int sumOfArray = 0;
                     ArrayList<Integer> dataInInt = new ArrayList<>();
                     //runs over all messages.
                     for(int j = 0; j < canData.size(); j++)
@@ -79,7 +79,7 @@ public class SimulationCalc {
                         {
                             dataInInt.add(Byte.toUnsignedInt(canData.get(j).data[currentByte]));
                             //currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[currentByte]))-simulationToCompare.get(j).getDataPoint()),2);
-                            sumOfarray += Byte.toUnsignedInt(canData.get(j).data[currentByte]);
+                            sumOfArray += Byte.toUnsignedInt(canData.get(j).data[currentByte]);
                         } else {
                             byte bytesCan[] = new byte[4];
                             for(int k = 0; k < byteLength; k++)
@@ -95,7 +95,7 @@ public class SimulationCalc {
                             int tempCan = bufferCan.getInt();
                             dataInInt.add(tempCan);
                             //currentdifference += Math.pow((double)(tempCan- simulationToCompare.get(j).getDataPoint()),2);
-                            sumOfarray += tempCan;
+                            sumOfArray += tempCan;
                         }
                     }
 
@@ -120,23 +120,25 @@ public class SimulationCalc {
 
                     for(int j =0; j <dataInInt.size(); j++)
                     {
-                        currentdifference += Math.pow((double)((dataInInt.get(j))-(simulationToCompare.get(j).getDataPoint()*scaling)),2);
+                        currentDifference += Math.pow((double)((dataInInt.get(j))-(simulationToCompare.get(j).getDataPoint()*scaling)),2);
                     }
 
                     //add answer to answers array and sorts it.
-                    if(answers.size() < top && sumOfarray != 0 ) {
+                    if(answers.size() < top && sumOfArray != 0 ) {
                         ArrayList<Float> answer = new ArrayList<>();
-                        float rms = ((float)currentdifference/(float)canData.size());
+                        double difference = Math.sqrt(currentDifference);
+                        float rms = ((float)difference/(float)canData.size());
                         answer.add(rms);
                         answer.add((float)key);
                         answer.add((float)currentByte);
                         answer.add((float)byteLength);
                         answers.add(answer);
                         answers = sort(answers);
-                    } else if(sumOfarray != 0){
+                    } else if(sumOfArray != 0){
                         ArrayList<Float> answer = new ArrayList<>();
                         answer.clear();
-                        float rms = (currentdifference/canData.size());
+                        double difference = Math.sqrt(currentDifference);
+                        float rms = ((float)difference/(float)canData.size());
                         answer.add(rms);
                         answer.add((float)key);
                         answer.add((float)currentByte);

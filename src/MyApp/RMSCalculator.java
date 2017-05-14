@@ -109,7 +109,8 @@ public class RMSCalculator {
                 //add answer to answers array and sorts it.
                 if(answers.size() < top && sumOfarray != 0 ) {
                     ArrayList<Float> answer = new ArrayList<>();
-                    rms = (currentdifference/canData.size());
+                    double difference = Math.sqrt(currentdifference);
+                    rms = ((float)difference/(float)canData.size());
                     answer.add(rms);
                     answer.add((float)key);
                     answer.add((float)i);
@@ -119,7 +120,8 @@ public class RMSCalculator {
                 } else if(sumOfarray != 0){
                     ArrayList<Float> answer = new ArrayList<>();
                     answer.clear();
-                    rms = (currentdifference/canData.size());
+                    double difference = Math.sqrt(currentdifference);
+                    rms = ((float)difference/(float)canData.size());
                     answer.add(rms);
                     answer.add((float)key);
                     answer.add((float)i);

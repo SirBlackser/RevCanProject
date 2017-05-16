@@ -65,6 +65,8 @@ public class SimulationCalc {
             } else {*/
                 //Iterator<SimulationPoint> simulationIterator = simulation.iterator();
                 int simLoc = 0;
+                int SimMin = 0;
+                int SimMax = 0;
                 //SimulationPoint simulationPoint = simulationPoints.get(simLoc);
                 Long previous = Math.abs(simulationPoints.get(simLoc).getTimeStamp() - messages.get(0).time);
                 for(int i = 0; i < messages.size(); i++)
@@ -82,7 +84,11 @@ public class SimulationCalc {
                         }
                         if(canData.size() == 1)
                         {
-                            int start = i;
+                            SimMin = simulationPoints.get(simLoc).getDataPoint();
+                            SimMax = simulationPoints.get(simLoc).getDataPoint();
+                        } else {
+                            if(simulationPoints.get(simLoc).getDataPoint() < SimMin) SimMin = simulationPoints.get(simLoc).getDataPoint();
+                            if(simulationPoints.get(simLoc).getDataPoint() > SimMax) SimMax = simulationPoints.get(simLoc).getDataPoint();
                         }
                         simulationToCompare.add(simulationPoints.get(simLoc));
                         simLoc++;
@@ -103,6 +109,8 @@ public class SimulationCalc {
                 {
                     float currentDifference = 0;
                     int sumOfArray = 0;
+                    int CanMin = 0;
+                    int CanMax = 0;
                     ArrayList<Integer> dataInInt = new ArrayList<>();
                     //runs over all messages.
                     for(int j = 0; j < canData.size(); j++)
@@ -126,24 +134,19 @@ public class SimulationCalc {
                             //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                             int tempCan = bufferCan.getInt();
                             dataInInt.add(tempCan);
+                            if(dataInInt.size() == 1)
+                            {
+                                CanMin = tempCan;
+                                CanMax = tempCan;
+                            } else {
+                                if(tempCan < CanMin) CanMin = tempCan;
+                                if(tempCan > CanMax) CanMax = tempCan;
+                            }
                             //currentdifference += Math.pow((double)(tempCan- simulationToCompare.get(j).getDataPoint()),2);
                             sumOfArray += tempCan;
                         }
                     }
 
-                    int CanMin = dataInInt.get(0);
-                    int CanMax = dataInInt.get(0);
-                    for(Integer i: dataInInt) {
-                        if(i < CanMin) CanMin = i;
-                        if(i > CanMax) CanMax = i;
-                    }
-
-                    int SimMin = simulationToCompare.get(0).getDataPoint();
-                    int SimMax = simulationToCompare.get(0).getDataPoint();
-                    for(SimulationPoint i: simulationToCompare) {
-                        if(i.getDataPoint() < SimMin) SimMin = i.getDataPoint();
-                        if(i.getDataPoint() > SimMax) SimMax = i.getDataPoint();
-                    }
                     float scaling = (float) (CanMax - CanMin) / (float) (SimMax - SimMin);
                     if(scaling < 1) {
                         scaling = 1;

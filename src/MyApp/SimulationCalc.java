@@ -35,35 +35,67 @@ public class SimulationCalc {
             ArrayList<Message> messages = data.get(key);
             ArrayList<Message> canData = new ArrayList<>();
             ArrayList<SimulationPoint> simulationToCompare = new ArrayList<>();
-            if(simulation.size() > data.get(key).size()) {
-                Iterator<Message> messageIterator = messages.iterator();
-                Message current = messageIterator.next();
+            /*if(simulation.size() > messages.size()) {
+                Message message = messages.get(0);
+                int messageLoc = 0;
+                Long previous = Math.abs(simulation.get(messageLoc).getTimeStamp() - message.time);
                 for(int i = 0; i < simulation.size(); i++)
                 {
-                    if(simulation.get(i).getTimeStamp()> current.time-timeDifference && simulation.get(i).getTimeStamp()< current.time+timeDifference)
+                    Long timeDiff = simulation.get(i).getTimeStamp() - messages.get(messageLoc).time;
+                    if(timeDiff <= 0)
                     {
-                        canData.add(current);
-                        simulationToCompare.add(simulation.get(i));
-                        if(messageIterator.hasNext()) {
-                            current = messageIterator.next();
+                        if(Math.abs(timeDiff) > previous)
+                        {
+                            simulationToCompare.add(simulation.get(i-1));
+                        } else
+                        {
+                            simulationToCompare.add(simulation.get(i));
+                        }
+                        canData.add(messages.get(messageLoc));
+                        messageLoc++;
+                        if(messageLoc >=messages.size()-1)
+                        {
+                            i = simulationPoints.size();
+                        } else {
+                            i--;
                         }
                     }
+                    previous = timeDiff;
                 }
-            } else {
-                Iterator<SimulationPoint> simulationIterator = simulation.iterator();
-                SimulationPoint current = simulationIterator.next();
+            } else {*/
+                //Iterator<SimulationPoint> simulationIterator = simulation.iterator();
+                int simLoc = 0;
+                //SimulationPoint simulationPoint = simulationPoints.get(simLoc);
+                Long previous = Math.abs(simulationPoints.get(simLoc).getTimeStamp() - messages.get(0).time);
                 for(int i = 0; i < messages.size(); i++)
                 {
-                    if(messages.get(i).time > current.getTimeStamp()-timeDifference && messages.get(i).time < current.getTimeStamp()+timeDifference)
+                    //simulationPoint = simulationPoints.get(simLoc);
+                    Long timeDiff = simulationPoints.get(simLoc).getTimeStamp() - messages.get(i).time;
+                    if(timeDiff <= 0)
                     {
-                        canData.add(messages.get(i));
-                        simulationToCompare.add(current);
-                        if(simulationIterator.hasNext()) {
-                            current = simulationIterator.next();
+                        if(Math.abs(timeDiff) > previous && i !=0)
+                        {
+                            canData.add(messages.get(i-1));
+                        } else
+                        {
+                            canData.add(messages.get(i));
+                        }
+                        if(canData.size() == 1)
+                        {
+                            int start = i;
+                        }
+                        simulationToCompare.add(simulationPoints.get(simLoc));
+                        simLoc++;
+                        if(simLoc >=simulationPoints.size()-1)
+                        {
+                            i = messages.size();
+                        } else {
+                            i--;
                         }
                     }
+                    previous = timeDiff;
                 }
-            }
+            //}
             //runs over different byte lengths
             for(int byteLength = 1; byteLength<5; byteLength++)
             {
@@ -120,7 +152,7 @@ public class SimulationCalc {
 
                     for(int j =0; j <dataInInt.size(); j++)
                     {
-                        currentDifference += Math.pow((double)((dataInInt.get(j))-(simulationToCompare.get(j).getDataPoint()*scaling)),2);
+                        currentDifference += Math.pow((double)((dataInInt.get(j))-((simulationToCompare.get(j).getDataPoint()*scaling)+CanMin)),2);
                     }
 
                     //add answer to answers array and sorts it.

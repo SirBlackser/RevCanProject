@@ -26,10 +26,10 @@ public class SimParser {
                     String substrings[] = myLine.split(" ");
                     String subTime[] = substrings[0].split("e");
                     String subData[] = substrings[1].split("e");
-                    float timestamp = Float.parseFloat(subTime[0])*1000;
+                    float timeSim = Float.parseFloat(subTime[0])*1000;
                     double powerTime = Double.parseDouble(subTime[1]);
-                    timestamp = (float)(timestamp * Math.pow(10,powerTime));
-                    timestamp = Math.round(timestamp)+offset;
+                    Long timestamp = (long)(timeSim * Math.pow(10,powerTime));
+                    timestamp = timestamp+offset;
 
                     float datatemp = Float.parseFloat(subData[0]);
                     double powerData = Double.parseDouble(subData[1]);

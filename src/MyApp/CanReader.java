@@ -108,6 +108,7 @@ public class CanReader implements Runnable{
     private static ArrayList<SimulationPoint> simulationResults;
     private static SimParser simParser;
     private static SimulationCalc simulationCalc;
+    private static SimulationCalcBits simulationCalcBits;
 
     public static void main(String[] args)
     {
@@ -126,6 +127,7 @@ public class CanReader implements Runnable{
         filterIds.add(-1);
         toDrawGraphs = new HashMap<>();
         simulationCalc = new SimulationCalc();
+        simulationCalcBits = new SimulationCalcBits();
         toDrawGraphsBackUp = new HashMap<>();
         sortedData = new HashMap<>();
         foundIDS = new ArrayList<>();
@@ -537,7 +539,8 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!simulationResults.isEmpty()) {
-                    ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
+                    //ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
+                    ArrayList<ArrayList<Float>> answers = simulationCalcBits.calcSimulation(sortedData, simulationResults);
                     FillResult(answers, "Deviation: ");
                 } else {
                     log.append("no simulations results found.");

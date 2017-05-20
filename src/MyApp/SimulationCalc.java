@@ -22,7 +22,7 @@ public class SimulationCalc {
         ArrayList<ArrayList<Float>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
-        int top = 5;
+        int top = 10;
         int timeDifference = 10;
         Set<Integer> keys = data.keySet();
         Iterator<Integer> iterator = keys.iterator();
@@ -158,26 +158,18 @@ public class SimulationCalc {
                         currentDifference += Math.pow((double)((dataInInt.get(j))-((simulationToCompare.get(j).getDataPoint()*scaling)+CanMin)),2);
                     }
 
+                    ArrayList<Float> answer = new ArrayList<>();
+                    double difference = Math.sqrt(currentDifference);
+                    float rms = ((float)difference/(float)canData.size());
+                    answer.add(rms);
+                    answer.add((float)key);
+                    answer.add((float)currentByte);
+                    answer.add((float)byteLength);
                     //add answer to answers array and sorts it.
                     if(answers.size() < top && sumOfArray != 0 ) {
-                        ArrayList<Float> answer = new ArrayList<>();
-                        double difference = Math.sqrt(currentDifference);
-                        float rms = ((float)difference/(float)canData.size());
-                        answer.add(rms);
-                        answer.add((float)key);
-                        answer.add((float)currentByte);
-                        answer.add((float)byteLength);
                         answers.add(answer);
                         answers = sort(answers);
                     } else if(sumOfArray != 0){
-                        ArrayList<Float> answer = new ArrayList<>();
-                        answer.clear();
-                        double difference = Math.sqrt(currentDifference);
-                        float rms = ((float)difference/(float)canData.size());
-                        answer.add(rms);
-                        answer.add((float)key);
-                        answer.add((float)currentByte);
-                        answer.add((float)byteLength);
                         if(rms < answers.get(top-1).get(0))
                         {
                             answers.remove(top-1);

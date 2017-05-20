@@ -23,7 +23,7 @@ public class SimulationCalcBits {
         ArrayList<ArrayList<Float>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
-        int top = 5;
+        int top = 10;
         int timeDifference = 10;
         Set<Integer> keys = data.keySet();
         Iterator<Integer> iterator = keys.iterator();
@@ -139,26 +139,33 @@ public class SimulationCalcBits {
                             currentDifference += Math.pow((double) ((dataInInt.get(j)) - ((simulationToCompare.get(j).getDataPoint() * scaling) + CanMin)), 2);
                         }
 
+                        ArrayList<Float> answer = new ArrayList<>();
+                        double difference = Math.sqrt(currentDifference);
+                        float rms = ((float) difference / (float) canData.size());
+                        answer.add(rms);
+                        answer.add((float) key);
+                        answer.add((float) currentByte);
+                        answer.add((float) byteLength);
+                        answer.add((float)bits);
+                        int skip = 0;
+                        for(int i = 0; i < answers.size(); i++)
+                        {
+                            if(answers.get(i).get(1).equals(answer.get(1)) && answers.get(i).get(2).equals(answer.get(2)))
+                            {
+                                if(answer.get(0) < answers.get(i).get(0))
+                                {
+                                    answers.remove(i);
+                                } else {
+                                    skip = 1;
+                                }
+                            }
+                        }
+
                         //add answer to answers array and sorts it.
                         if (answers.size() < top && sumOfArray != 0) {
-                            ArrayList<Float> answer = new ArrayList<>();
-                            double difference = Math.sqrt(currentDifference);
-                            float rms = ((float) difference / (float) canData.size());
-                            answer.add(rms);
-                            answer.add((float) key);
-                            answer.add((float) currentByte);
-                            answer.add((float) byteLength);
                             answers.add(answer);
                             answers = sort(answers);
-                        } else if (sumOfArray != 0) {
-                            ArrayList<Float> answer = new ArrayList<>();
-                            answer.clear();
-                            double difference = Math.sqrt(currentDifference);
-                            float rms = ((float) difference / (float) canData.size());
-                            answer.add(rms);
-                            answer.add((float) key);
-                            answer.add((float) currentByte);
-                            answer.add((float) byteLength);
+                        } else if (sumOfArray != 0 && skip == 0) {
                             if (rms < answers.get(top - 1).get(0)) {
                                 answers.remove(top - 1);
                                 answers.add(answer);

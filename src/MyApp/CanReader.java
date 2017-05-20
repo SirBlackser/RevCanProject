@@ -57,19 +57,19 @@ public class CanReader implements Runnable{
     private JButton throttleTestButton;
     private JButton RPMTestButton;
     private JButton speedTestButton;
-    private JLabel ThrottleID1;
+    private JLabel Results1;
     private JLabel RPMID1;
     private JLabel SpeedID1;
-    private JLabel ThrottleID2;
-    private JLabel ThrottleID3;
+    private JLabel Results2;
+    private JLabel Results3;
     private JLabel RPMID2;
     private JLabel RPMID3;
     private JLabel SpeedID2;
     private JLabel SpeedID3;
     private JComboBox IDCheck;
     private JLabel IdText;
-    private JLabel ThrottleID4;
-    private JLabel ThrottleID5;
+    private JLabel Results4;
+    private JLabel Results5;
     private JFormattedTextField KmStand;
     private JButton CalcKmButton;
     private JLabel IDkm;
@@ -78,6 +78,12 @@ public class CanReader implements Runnable{
     private JFormattedTextField simPath;
     private JFormattedTextField VboxTime;
     private JButton runSimTestButton;
+    private JLabel Results6;
+    private JLabel Results7;
+    private JLabel Results8;
+    private JLabel Results9;
+    private JLabel Results10;
+    private JComboBox comboBox4;
 
     private DataObserver dataObserver;
     private Parser parser;
@@ -471,10 +477,10 @@ public class CanReader implements Runnable{
                         IdText.setText(sub[1]);
                         FillResult(answers, DevOrP);
                     } else{
-                        ThrottleID1.setText("right obd code not present: " + sub[0]);
+                        Results1.setText("right obd code not present: " + sub[0]);
                     }
                 } else{
-                    ThrottleID1.setText("no obd messages pressent");
+                    Results1.setText("no obd messages pressent");
                 }
             }
         });
@@ -539,8 +545,14 @@ public class CanReader implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!simulationResults.isEmpty()) {
-                    //ArrayList<ArrayList<Float>> answers = simulationCalc.calcSimulation(sortedData, simulationResults);
-                    ArrayList<ArrayList<Float>> answers = simulationCalcBits.calcSimulation(sortedData, simulationResults);
+                    String method = comboBox4.getSelectedItem().toString();
+                    ArrayList<ArrayList<Float>> answers = new ArrayList<>();
+                    if(method.equals("Regular")) {
+                        answers = simulationCalc.calcSimulation(sortedData, simulationResults);
+                    } else if(method.equals("Bits")) {
+                        answers = simulationCalcBits.calcSimulation(sortedData, simulationResults);
+                    }
+
                     FillResult(answers, "Deviation: ");
                 } else {
                     log.append("no simulations results found.");
@@ -628,19 +640,37 @@ public class CanReader implements Runnable{
         for(ArrayList<Float> answer: answers)
         {
             String temp = "Deviation per Byte: ";
-            if(answer.get(3) == 1)
-            {
+            if(answer.get(3) == 1) {
                 temp += answer.get(0) + " at ID: " + Integer.toHexString(Math.round(answer.get(1))) + " byte: " + answer.get(2);
             } else {
                 float temp1 = answer.get(2) + (answer.get(3) - 1);
                 temp += answer.get(0) + " at ID: " + Integer.toHexString(Math.round(answer.get(1))) + " bytes: " + answer.get(2) + "-" + temp1;
             }
+            if(answer.size() == 5) {
+                if(answer.get(4) == 0) {
+                    temp += ", full bytes";
+                } else if(answer.get(4) == 1) {
+                    temp += ", shift 2 bits";
+                } else if(answer.get(4) == 2) {
+                    temp += ", shift 4 bits";
+                } else if(answer.get(4) == 3) {
+                    temp += ", first 2 bits on zero";
+                } else if(answer.get(4) == 4) {
+                    temp += ", first 4 bits on zero";
+                }
+            }
             results.add(temp);
         }
-        ThrottleID1.setText(results.get(0));
-        ThrottleID2.setText(results.get(1));
-        ThrottleID3.setText(results.get(2));
-        ThrottleID4.setText(results.get(3));
-        ThrottleID5.setText(results.get(4));
+
+        if(answers.size() > 0) { Results1.setText(results.get(0));}
+        if(answers.size() > 1) { Results2.setText(results.get(1));}
+        if(answers.size() > 2) { Results3.setText(results.get(2));}
+        if(answers.size() > 3) { Results4.setText(results.get(3));}
+        if(answers.size() > 4) { Results5.setText(results.get(4));}
+        if(answers.size() > 5) { Results6.setText(results.get(5));}
+        if(answers.size() > 6) { Results7.setText(results.get(6));}
+        if(answers.size() > 7) { Results8.setText(results.get(7));}
+        if(answers.size() > 8) { Results9.setText(results.get(8));}
+        if(answers.size() > 9) { Results10.setText(results.get(9));}
     }
 }

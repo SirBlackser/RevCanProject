@@ -477,9 +477,11 @@ public class CanReader implements Runnable{
                         IdText.setText(sub[1]);
                         FillResult(answers, DevOrP);
                     } else{
+                        restResults();
                         Results1.setText("right obd code not present: " + sub[0]);
                     }
                 } else{
+                    restResults();
                     Results1.setText("no obd messages pressent");
                 }
             }
@@ -555,6 +557,7 @@ public class CanReader implements Runnable{
 
                     FillResult(answers, "Deviation: ");
                 } else {
+                    restResults();
                     log.append("no simulations results found.");
                 }
             }
@@ -636,6 +639,7 @@ public class CanReader implements Runnable{
 
     private void FillResult(ArrayList<ArrayList<Float>> answers, String DevOrP)
     {
+        restResults();
         ArrayList<String> results = new ArrayList<>();
         for(ArrayList<Float> answer: answers)
         {
@@ -672,5 +676,20 @@ public class CanReader implements Runnable{
         if(answers.size() > 7) { Results8.setText(results.get(7));}
         if(answers.size() > 8) { Results9.setText(results.get(8));}
         if(answers.size() > 9) { Results10.setText(results.get(9));}
+    }
+
+    private void restResults()
+    {
+        Results1.setText("");
+        Results2.setText("");
+        Results3.setText("");
+        Results4.setText("");
+        Results5.setText("");
+        Results6.setText("");
+        Results7.setText("");
+        Results8.setText("");
+        Results9.setText("");
+        Results10.setText("");
+        Results10.setText("");
     }
 }

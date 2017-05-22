@@ -28,7 +28,7 @@ public class RMSCalculator {
         ArrayList<ArrayList<Float>> answers = new ArrayList<>();
         //long beginTime = 0;
         //long endTime = 0;
-        int top = 5;
+        int top = 10;
 
         // Save all the messages from OBD (hex value (id) 7E8, int value 2024)
         ArrayList<Message> knowData = new ArrayList<>();

@@ -35,35 +35,6 @@ public class SimulationCalc {
             ArrayList<Message> messages = data.get(key);
             ArrayList<Message> canData = new ArrayList<>();
             ArrayList<SimulationPoint> simulationToCompare = new ArrayList<>();
-            /*if(simulation.size() > messages.size()) {
-                Message message = messages.get(0);
-                int messageLoc = 0;
-                Long previous = Math.abs(simulation.get(messageLoc).getTimeStamp() - message.time);
-                for(int i = 0; i < simulation.size(); i++)
-                {
-                    Long timeDiff = simulation.get(i).getTimeStamp() - messages.get(messageLoc).time;
-                    if(timeDiff <= 0)
-                    {
-                        if(Math.abs(timeDiff) > previous)
-                        {
-                            simulationToCompare.add(simulation.get(i-1));
-                        } else
-                        {
-                            simulationToCompare.add(simulation.get(i));
-                        }
-                        canData.add(messages.get(messageLoc));
-                        messageLoc++;
-                        if(messageLoc >=messages.size()-1)
-                        {
-                            i = simulationPoints.size();
-                        } else {
-                            i--;
-                        }
-                    }
-                    previous = timeDiff;
-                }
-            } else {*/
-                //Iterator<SimulationPoint> simulationIterator = simulation.iterator();
                 int simLoc = 0;
                 int SimMin = 0;
                 int SimMax = 0;
@@ -113,10 +84,14 @@ public class SimulationCalc {
                     int CanMax = 0;
                     ArrayList<Integer> dataInInt = new ArrayList<>();
                     //runs over all messages.
+                    boolean same = true;
                     for(int j = 0; j < canData.size(); j++)
                     {
                         if(byteLength == 1)
                         {
+                            if(!dataInInt.isEmpty() && Byte.toUnsignedInt(canData.get(j).data[currentByte]) != dataInInt.get(dataInInt.size()-1)) {
+                                same = false;
+                            }
                             dataInInt.add(Byte.toUnsignedInt(canData.get(j).data[currentByte]));
                             //currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[currentByte]))-simulationToCompare.get(j).getDataPoint()),2);
                             sumOfArray += Byte.toUnsignedInt(canData.get(j).data[currentByte]);
@@ -133,6 +108,9 @@ public class SimulationCalc {
                             }
                             //bufferOBD.order(ByteOrder.LITTLE_ENDIAN);  // if you want little-endian
                             int tempCan = bufferCan.getInt();
+                            if(!dataInInt.isEmpty() && tempCan != dataInInt.get(dataInInt.size()-1)) {
+                                same = false;
+                            }
                             dataInInt.add(tempCan);
                             if(dataInInt.size() == 1)
                             {
@@ -152,7 +130,6 @@ public class SimulationCalc {
                         scaling = 1;
                     }
 
-
                     for(int j =0; j <dataInInt.size(); j++)
                     {
                         currentDifference += Math.pow((double)((dataInInt.get(j))-((simulationToCompare.get(j).getDataPoint()*scaling)+CanMin)),2);
@@ -165,11 +142,24 @@ public class SimulationCalc {
                     answer.add((float)key);
                     answer.add((float)currentByte);
                     answer.add((float)byteLength);
+                    int skip = 0;
+                    for(int i = 0; i < answers.size(); i++)
+                    {
+                        if(answers.get(i).get(1).equals(answer.get(1)) && answers.get(i).get(2).equals(answer.get(2)))
+                        {
+                            if(answer.get(0) < answers.get(i).get(0))
+                            {
+                                answers.remove(i);
+                            } else {
+                                skip = 1;
+                            }
+                        }
+                    }
                     //add answer to answers array and sorts it.
-                    if(answers.size() < top && sumOfArray != 0 ) {
+                    if(answers.size() < top && sumOfArray != 0 && same != true) {
                         answers.add(answer);
                         answers = sort(answers);
-                    } else if(sumOfArray != 0){
+                    } else if(sumOfArray != 0 && same != true && skip == 0){
                         if(rms < answers.get(top-1).get(0))
                         {
                             answers.remove(top-1);

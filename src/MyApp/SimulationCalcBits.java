@@ -79,6 +79,7 @@ public class SimulationCalcBits {
             {
                 for(int currentByte = 0; currentByte < canData.get(0).data.length-(byteLength-1); currentByte++) {
                     for (int bits = 0; bits < 6; bits++) {
+                        boolean same = true;
                         int mask = 0xFFFF;
                         if(bits == 3)
                         {
@@ -94,6 +95,9 @@ public class SimulationCalcBits {
                         //runs over all messages.
                         for (int j = 0; j < canData.size(); j++) {
                             if (byteLength == 1) {
+                                if(!dataInInt.isEmpty() && Byte.toUnsignedInt(canData.get(j).data[currentByte]) != dataInInt.get(dataInInt.size()-1)) {
+                                    same = false;
+                                }
                                 dataInInt.add(Byte.toUnsignedInt(canData.get(j).data[currentByte]));
                                 //currentdifference += Math.pow((double)((Byte.toUnsignedInt(canData.get(j).data[currentByte]))-simulationToCompare.get(j).getDataPoint()),2);
                                 sumOfArray += Byte.toUnsignedInt(canData.get(j).data[currentByte]);
@@ -115,6 +119,9 @@ public class SimulationCalcBits {
                                     tempCan = shiftbits.intValue();
                                 } else if(bits == 3 || bits == 4) {
                                     tempCan = tempCan & mask;
+                                }
+                                if(!dataInInt.isEmpty() && tempCan != dataInInt.get(dataInInt.size()-1)) {
+                                    same = false;
                                 }
                                 dataInInt.add(tempCan);
                                 if (dataInInt.size() == 1) {
@@ -162,10 +169,10 @@ public class SimulationCalcBits {
                         }
 
                         //add answer to answers array and sorts it.
-                        if (answers.size() < top && sumOfArray != 0) {
+                        if (answers.size() < top && sumOfArray != 0 && same != true) {
                             answers.add(answer);
                             answers = sort(answers);
-                        } else if (sumOfArray != 0 && skip == 0) {
+                        } else if (sumOfArray != 0 && skip == 0 && same != true) {
                             if (rms < answers.get(top - 1).get(0)) {
                                 answers.remove(top - 1);
                                 answers.add(answer);

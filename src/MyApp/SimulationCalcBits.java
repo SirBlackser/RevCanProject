@@ -104,7 +104,11 @@ public class SimulationCalcBits {
                             } else {
                                 byte bytesCan[] = new byte[4];
                                 for (int k = 0; k < byteLength; k++) {
-                                    bytesCan[k] = canData.get(j).data[currentByte + k];
+                                    if(CanReader.getEndian().equals("little")) {
+                                        bytesCan[k] = canData.get(j).data[currentByte + k];
+                                    } else {
+                                        bytesCan[3 - ((byteLength - 1) - k)] = canData.get(j).data[currentByte + k];
+                                    }
                                 }
                                 //conver bytes to int, Can messages work with little endian, OBD with big endian
                                 ByteBuffer bufferCan = ByteBuffer.wrap(bytesCan);
@@ -124,15 +128,16 @@ public class SimulationCalcBits {
                                     same = false;
                                 }
                                 dataInInt.add(tempCan);
-                                if (dataInInt.size() == 1) {
-                                    CanMin = tempCan;
-                                    CanMax = tempCan;
-                                } else {
-                                    if (tempCan < CanMin) CanMin = tempCan;
-                                    if (tempCan > CanMax) CanMax = tempCan;
-                                }
                                 //currentdifference += Math.pow((double)(tempCan- simulationToCompare.get(j).getDataPoint()),2);
                                 sumOfArray += tempCan;
+                            }
+                            if(dataInInt.size() == 1)
+                            {
+                                CanMin = dataInInt.get(dataInInt.size()-1);
+                                CanMax = dataInInt.get(dataInInt.size()-1);
+                            } else {
+                                if(dataInInt.get(dataInInt.size()-1) < CanMin) CanMin = dataInInt.get(dataInInt.size()-1);
+                                else if(dataInInt.get(dataInInt.size()-1) > CanMax) CanMax = dataInInt.get(dataInInt.size()-1);
                             }
                         }
 
